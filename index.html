@@ -440,7 +440,7 @@
 // ══════════════════════════════════════════════
 // CONFIG — URL PARTAGÉE POUR TOUS LES UTILISATEURS
 // ══════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzjVL60T71zzT33lYHn0T8ZyRy0HbNcf1lCizwSnsZQaF1TxuUJA2hQc7Y4ziXm5B2P/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwqXXRQPZfhONfHgmk6vaWVS6_TKi5wyjYAvCoU3SrRo79NO7LspY9doDqtDxqn56sN/exec';
 const MAX_PAUSE = 5;
 const POLL_MS   = 5000;
 
@@ -594,20 +594,29 @@ async function fetchAgents() {
 async function fetchPauses() {
   setSyncStatus('syncing');
   try {
-    const res = await fetch(SHEETS_URL + '?action=getPauses&t=' + Date.now());
+    const res  = await fetch(SHEETS_URL + '?action=getPauses&t=' + Date.now());
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error('réponse invalide');
 
-    // Merge pour préserver les startTime locaux (chrono stable)
+    // Convertit la date texte Sheets "dd/mm/yyyy hh:mm:ss" → timestamp ms
+    function sheetsDateToTs(str) {
+      if (!str) return Date.now();
+      // Format: 25/02/2026 15:12:44
+      const m = str.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
+      if (!m) return Date.now();
+      return new Date(m[3], m[2]-1, m[1], m[4], m[5], m[6]).getTime();
+    }
+
+    // Merge — préserve les startTime locaux si l'entrée existe déjà
     pauseList = data.map(row => {
       const existing = pauseList.find(p => String(p.id) === String(row.id));
       return {
-        id:        row.id,
+        id:        String(row.id),
         matricule: row.matricule,
         nom:       row.nom,
         equipe:    row.equipe,
         note:      row.note || '',
-        startTime: existing ? existing.startTime : Number(row.startTime)
+        startTime: existing ? existing.startTime : sheetsDateToTs(row.startTime)
       };
     });
 
@@ -639,21 +648,25 @@ async function pushPause(entry) {
     });
     await fetch(SHEETS_URL + '?' + p.toString());
     setSyncStatus('ok');
-    await fetchPauses();
     return true;
   } catch(e) { setSyncStatus('err'); return false; }
 }
 
-async function callRemovePause(id) {
+// Met à jour Statut → "Terminé" + heure de fin dans Sheets
+async function callRemovePause(id, finStr) {
   setSyncStatus('syncing');
   try {
-    const p = new URLSearchParams({ action: 'removePause', id: String(id) });
+    const p = new URLSearchParams({
+      action: 'removePause',
+      id:     String(id),
+      fin:    finStr || ''
+    });
     await fetch(SHEETS_URL + '?' + p.toString());
     setSyncStatus('ok');
-    // NE PAS appeler fetchPauses ici — géré par recallAgent
     return true;
   } catch(e) { setSyncStatus('err'); return false; }
 }
+
 
 // ══════════════════════════════════════════════
 // MATRICULE INPUT
@@ -741,7 +754,7 @@ async function recallAgent(id) {
   clearInterval(pollInterval);
 
   // 4. Sync suppression vers Sheets
-  const ok = await callRemovePause(sid);
+  const ok = await callRemovePause(sid, fmtSheets(now));
   if (!ok) notify('⚠ Erreur sync Sheets', 'err');
 
   // 5. Relancer le polling
@@ -825,6 +838,14 @@ function tick() {
     if (te) { te.textContent = fmt(e); te.className = 'timer-value ' + cls; }
     if (ce) ce.className = 'agent-card ' + cls;
   });
+}
+
+// Format dd/mm/yyyy hh:mm:ss pour Google Sheets
+function fmtSheets(ts) {
+  const d = new Date(ts);
+  const pad = n => String(n).padStart(2,'0');
+  return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()
+    +' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
 }
 
 function fmt(s) {
