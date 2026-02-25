@@ -650,7 +650,7 @@ async function callRemovePause(id) {
     const p = new URLSearchParams({ action: 'removePause', id: String(id) });
     await fetch(SHEETS_URL + '?' + p.toString());
     setSyncStatus('ok');
-    await fetchPauses();
+    // NE PAS appeler fetchPauses ici — géré par recallAgent
     return true;
   } catch(e) { setSyncStatus('err'); return false; }
 }
@@ -715,38 +715,37 @@ async function sendPause() {
 }
 
 // ══════════════════════════════════════════════
-// RECALL (RETOUR) — enregistre heure de retour + durée
+// RECALL (RETOUR) — immédiat, sans modale
 // ══════════════════════════════════════════════
-function recallAgent(id) {
-  const p = pauseList.find(x => String(x.id) === String(id));
-  if (!p) return;
+async function recallAgent(id) {
+  const sid = String(id);
+  const p = pauseList.find(x => String(x.id) === sid);
+  if (!p) { notify('Agent introuvable — liste déjà à jour', 'warn'); return; }
+
   const now = Date.now();
   const elapsed = Math.floor((now - p.startTime) / 1000);
 
-  openModal(
-    'CONFIRMER LE RETOUR',
-    p.nom + '\nDurée de pause : ' + fmt(elapsed) + '\n\nConfirmer le retour de cet agent ?',
-    async () => {
-      // Enregistrer dans l'historique de session
-      historyList.unshift({
-        ...p,
-        endTime: now,
-        duration: elapsed
-      });
+  // 1. Retirer immédiatement côté client
+  pauseList = pauseList.filter(x => String(x.id) !== sid);
+  historyList.unshift({ ...p, endTime: now, duration: elapsed });
 
-      // Retirer de la liste active
-      pauseList = pauseList.filter(x => String(x.id) !== String(id));
-      renderCapacity();
-      renderDashboard();
-      renderHistory();
-      updateStats();
-      onMatriculeInput(document.getElementById('input-matricule').value);
-      notify('↩ ' + p.nom + ' — retour confirmé (' + fmt(elapsed) + ')', 'warn');
+  // 2. Mettre à jour l'UI immédiatement
+  renderCapacity();
+  renderDashboard();
+  renderHistory();
+  updateStats();
+  onMatriculeInput(document.getElementById('input-matricule').value);
+  notify('↩ ' + p.nom + ' — retour confirmé (' + fmt(elapsed) + ')', 'warn');
 
-      const ok = await callRemovePause(id);
-      if (!ok) notify('⚠ Erreur de sync — réessai dans 5s', 'warn');
-    }
-  );
+  // 3. Couper le polling temporairement pour éviter que Sheets remette l'agent
+  clearInterval(pollInterval);
+
+  // 4. Sync suppression vers Sheets
+  const ok = await callRemovePause(sid);
+  if (!ok) notify('⚠ Erreur sync Sheets', 'err');
+
+  // 5. Relancer le polling
+  startPolling();
 }
 
 // ══════════════════════════════════════════════
