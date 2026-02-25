@@ -356,12 +356,12 @@
         <div class="input-row">
           <div class="input-block">
             <label>Matricule</label>
-            <input type="text" id="input-matricule" placeholder="ex: 10234" maxlength="10"
+            <input type="text" id="input-matricule" placeholder="ex: CN00663" maxlength="10"
               oninput="onMatriculeInput(this.value)" onkeydown="if(event.key==='Enter')sendPause()">
           </div>
           <div class="input-block">
             <label>Note (optionnel)</label>
-            <input type="text" id="input-note" placeholder="ex: salle de pause" maxlength="40">
+            <input type="text" id="input-note" placeholder="ex: Rendez-vous dentiste" maxlength="40">
           </div>
         </div>
         <div class="preview-agent" id="preview-agent">
@@ -386,7 +386,7 @@
 
     <!-- HISTORY -->
     <div class="tab-content" id="tab-history">
-      <div class="section-title">HISTORIQUE SESSION</div>
+      <div class="section-title">HISTORIQUE GLOBAL</div>
       <div class="section-sub">Toutes les pauses terminées — partagé entre tous les utilisateurs</div>
       <div id="history-list">
         <div class="dash-empty"><div class="big">📋</div>Aucune pause terminée</div>
@@ -446,7 +446,7 @@
 // ══════════════════════════════════════════════
 // CONFIG — URL PARTAGÉE POUR TOUS LES UTILISATEURS
 // ══════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxTkNjXbAZ59AEgKAtxDggPOGWaUMIZUaQ09iesrdvvmi5vAHUYwh_XI5G0cqqrI4zG/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyVjr4CKz-GrlpbwxAvD2VCI0b8SBHaAvHUaMv44i_qa2ZaXiTkyKXys9zam862M4tH/exec';
 const MAX_PAUSE = 5;
 const POLL_MS   = 5000;
 
@@ -455,15 +455,15 @@ const POLL_MS   = 5000;
 // ══════════════════════════════════════════════
 let currentUser  = null;
 let agentsDB     = {};
-let pauseList    = [];   // pauses actives (source = Sheets)
-let historyList  = [];   // pauses terminées cette session
+let pauseList    = [];
+let historyList  = [];
 let timerInterval = null;
 let pollInterval  = null;
 let modalCb       = null;
+let isRecalling   = false;
 
-// Démo si Sheets ne répond pas
 const DEMO = {
-  '10001': { nom: 'Marie Tremblay',        equipe: 'Service client' },
+  'CN00663': { nom: 'Marie Tremblay',        equipe: 'Service client' },
   '10002': { nom: 'Jean-François Gagnon',  equipe: 'Support technique' },
   '10003': { nom: 'Sophie Bouchard',       equipe: 'Ventes' },
   '10004': { nom: 'Marc-André Côté',       equipe: 'Service client' },
@@ -474,7 +474,7 @@ const DEMO = {
 };
 
 // ══════════════════════════════════════════════
-// STORAGE USERS
+// STORAGE USERS & SESSION
 // ══════════════════════════════════════════════
 function getUsers() {
   const raw = localStorage.getItem('pause_users');
@@ -486,6 +486,19 @@ function getUsers() {
   return JSON.parse(raw);
 }
 function saveUsers(u) { localStorage.setItem('pause_users', JSON.stringify(u)); }
+
+function saveSession(user) {
+  localStorage.setItem('pause_session', JSON.stringify(user));
+}
+
+function loadSession() {
+  const raw = localStorage.getItem('pause_session');
+  return raw ? JSON.parse(raw) : null;
+}
+
+function clearSession() {
+  localStorage.removeItem('pause_session');
+}
 
 // ══════════════════════════════════════════════
 // LOGIN / LOGOUT
@@ -503,6 +516,7 @@ function doLogin() {
     return;
   }
   currentUser = found;
+  saveSession(found);
   document.getElementById('page-login').style.display = 'none';
   document.getElementById('page-app').style.display = 'block';
   if (found.role === 'admin') {
@@ -517,6 +531,7 @@ function doLogin() {
 
 function doLogout() {
   currentUser = null;
+  clearSession();
   pauseList = []; historyList = [];
   clearInterval(timerInterval);
   clearInterval(pollInterval);
@@ -532,10 +547,33 @@ function doLogout() {
 }
 
 // ══════════════════════════════════════════════
+// AUTO-LOGIN ON PAGE LOAD
+// ══════════════════════════════════════════════
+window.addEventListener('DOMContentLoaded', () => {
+  const session = loadSession();
+  if (session) {
+    const found = getUsers().find(x => x.username === session.username && x.password === session.password);
+    if (found) {
+      currentUser = found;
+      document.getElementById('page-login').style.display = 'none';
+      document.getElementById('page-app').style.display = 'block';
+      if (found.role === 'admin') {
+        document.getElementById('btn-admin-tab').classList.remove('hidden');
+        document.querySelectorAll('[data-tab="admin"]').forEach(el => el.classList.remove('hidden'));
+        document.getElementById('tab-admin').classList.remove('hidden');
+      }
+      document.getElementById('stat-user').textContent = found.username;
+      document.getElementById('sheets-url-display').textContent = SHEETS_URL;
+      initApp();
+    }
+  }
+});
+
+// ══════════════════════════════════════════════
 // INIT
 // ══════════════════════════════════════════════
 function initApp() {
-  Object.assign(agentsDB, DEMO); // base démo par défaut
+  Object.assign(agentsDB, DEMO);
   fetchAgents();
   fetchPauses();
   fetchHistory();
@@ -599,22 +637,20 @@ async function fetchAgents() {
 // SHEETS — PAUSES
 // ══════════════════════════════════════════════
 async function fetchPauses() {
+  if (isRecalling) return;
   setSyncStatus('syncing');
   try {
     const res  = await fetch(SHEETS_URL + '?action=getPauses&t=' + Date.now());
     const data = await res.json();
     if (!Array.isArray(data)) throw new Error('réponse invalide');
 
-    // Convertit la date texte Sheets "dd/mm/yyyy hh:mm:ss" → timestamp ms
     function sheetsDateToTs(str) {
       if (!str) return Date.now();
-      // Format: 25/02/2026 15:12:44
       const m = str.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
       if (!m) return Date.now();
       return new Date(m[3], m[2]-1, m[1], m[4], m[5], m[6]).getTime();
     }
 
-    // Merge — préserve les startTime locaux si l'entrée existe déjà
     pauseList = data.map(row => {
       const existing = pauseList.find(p => String(p.id) === String(row.id));
       return {
@@ -641,7 +677,6 @@ function startPolling() {
   pollInterval = setInterval(() => { fetchPauses(); fetchHistory(); }, POLL_MS);
 }
 
-// Charge toutes les pauses TERMINÉES depuis Sheets (historique global)
 async function fetchHistory() {
   try {
     const res  = await fetch(SHEETS_URL + '?action=getHistory&t=' + Date.now());
@@ -675,7 +710,6 @@ async function fetchHistory() {
     renderHistory();
     document.getElementById('stat-total').textContent = historyList.length;
   } catch(e) {
-    // silencieux
   }
 }
 
@@ -697,7 +731,6 @@ async function pushPause(entry) {
   } catch(e) { setSyncStatus('err'); return false; }
 }
 
-// Met à jour Statut → "Terminé" + heure de fin dans Sheets
 async function callRemovePause(id, finStr) {
   setSyncStatus('syncing');
   try {
@@ -711,7 +744,6 @@ async function callRemovePause(id, finStr) {
     return true;
   } catch(e) { setSyncStatus('err'); return false; }
 }
-
 
 // ══════════════════════════════════════════════
 // MATRICULE INPUT
@@ -756,7 +788,6 @@ async function sendPause() {
 
   const entry = { id: Date.now(), matricule: mat, nom: agent.nom, equipe: agent.equipe, note, startTime: Date.now() };
 
-  // Optimistic update
   pauseList.push(entry);
   document.getElementById('input-matricule').value = '';
   document.getElementById('input-note').value = '';
@@ -783,7 +814,6 @@ function recallAgent(id) {
   const snapNow = Date.now();
   const snapElapsed = Math.floor((snapNow - p.startTime) / 1000);
 
-  // Affiche modale de confirmation — le callback est async
   document.getElementById('modal-title').textContent = 'CONFIRMER LE RETOUR';
   document.getElementById('modal-body').innerHTML =
     '<span style="font-size:18px;font-weight:700;color:#fff;display:block;margin-bottom:10px;">' + p.nom + '</span>' +
@@ -793,19 +823,18 @@ function recallAgent(id) {
     '<span style="color:#ffd040;font-weight:600;">Confirmer le retour de cet agent ?</span>';
   document.getElementById('modal').classList.add('open');
 
-  // Lier le bouton CONFIRMER directement à l'action async
   document.getElementById('modal-confirm').onclick = async function() {
-    // Fermer la modale EN PREMIER
     document.getElementById('modal').classList.remove('open');
+
+    isRecalling = true;
+    clearInterval(pollInterval);
 
     const now = Date.now();
     const elapsed = Math.floor((now - p.startTime) / 1000);
 
-    // Retirer de la liste active
     pauseList = pauseList.filter(x => String(x.id) !== sid);
     historyList.unshift({ ...p, endTime: now, duration: elapsed });
 
-    // Mettre à jour l'UI
     renderCapacity();
     renderDashboard();
     renderHistory();
@@ -813,14 +842,10 @@ function recallAgent(id) {
     onMatriculeInput(document.getElementById('input-matricule').value);
     notify('↩ ' + p.nom + ' — retour confirmé (' + fmt(elapsed) + ')', 'warn');
 
-    // Couper le polling le temps du sync
-    clearInterval(pollInterval);
-
-    // Sync vers Sheets
     const ok = await callRemovePause(sid, fmtSheets(now));
     if (!ok) notify('⚠ Erreur sync Sheets — vérifiez la connexion', 'err');
 
-    // Relancer le polling
+    isRecalling = false;
     startPolling();
   };
 }
@@ -909,7 +934,6 @@ function tick() {
   });
 }
 
-// Format dd/mm/yyyy hh:mm:ss pour Google Sheets
 function fmtSheets(ts) {
   const d = new Date(ts);
   const pad = n => String(n).padStart(2,'0');
@@ -920,9 +944,8 @@ function fmtSheets(ts) {
 function fmt(s) {
   return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
 }
-// Format affiché : 02-25 ⏰ 15 h 33 min 38 s
+
 function fmtDT(ts) {
-  // Accepte un timestamp ms OU une string Sheets "dd/mm/yyyy hh:mm:ss"
   let d;
   if (typeof ts === 'string' && ts.includes('/')) {
     const m = ts.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
