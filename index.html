@@ -354,6 +354,9 @@
 // ════════════════════════
 const MAX_PAUSE = 5;
 const POLL_INTERVAL = 5000; // sync toutes les 5 secondes
+
+// ⬇ COLLE TON URL APPS SCRIPT ICI — sera la même pour tous les utilisateurs
+const SHEETS_URL_DEFAULT = ''; // ex: 'https://script.google.com/macros/s/XXX/exec'
 let currentUser = null;
 let agentsDB = {};
 let pauseList = [];   // source de vérité = Google Sheets
@@ -438,13 +441,20 @@ function doLogout() {
 // INIT
 // ════════════════════════
 function initApp() {
-  const url = getSheetsUrl();
+  // SHEETS_URL_DEFAULT prime sur le localStorage
+  // → tous les users partagent la même URL automatiquement
+  const url = SHEETS_URL_DEFAULT || getSheetsUrl();
+  if (url) saveSheetsUrl(url);
   document.getElementById('sheets-url').value = url;
+
   if (url) {
     fetchAgents(url);
-    fetchPauses();  // charge les pauses existantes au démarrage
-    startPolling(); // sync en temps réel
+    fetchPauses();
+    startPolling();
+  } else {
+    notify('⚠ Aucune URL Sheets — configurez-la en Admin', 'warn');
   }
+
   renderCapacity();
   renderDashboard();
   renderUserList();
@@ -541,17 +551,24 @@ function startPolling() {
   pollInterval = setInterval(fetchPauses, POLL_INTERVAL);
 }
 
-// Envoie une nouvelle pause vers Sheets
+// Envoie une nouvelle pause vers Sheets (GET pour éviter CORS)
 async function pushPause(entry) {
   const url = getSheetsUrl();
   if (!url) return false;
   setSyncStatus('syncing');
   try {
-    await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'addPause', data: entry })
+    const params = new URLSearchParams({
+      action: 'addPause',
+      id:        String(entry.id),
+      matricule: entry.matricule,
+      nom:       entry.nom,
+      equipe:    entry.equipe,
+      note:      entry.note || '',
+      startTime: String(entry.startTime)
     });
+    await fetch(url + '?' + params.toString());
     setSyncStatus('ok');
+    await fetchPauses(); // refresh immédiat
     return true;
   } catch(e) {
     setSyncStatus('err');
@@ -559,17 +576,16 @@ async function pushPause(entry) {
   }
 }
 
-// Retire une pause depuis Sheets
+// Retire une pause depuis Sheets (GET pour éviter CORS)
 async function removePause(id) {
   const url = getSheetsUrl();
   if (!url) return false;
   setSyncStatus('syncing');
   try {
-    await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify({ action: 'removePause', id: String(id) })
-    });
+    const params = new URLSearchParams({ action: 'removePause', id: String(id) });
+    await fetch(url + '?' + params.toString());
     setSyncStatus('ok');
+    await fetchPauses(); // refresh immédiat
     return true;
   } catch(e) {
     setSyncStatus('err');
