@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PAUSE OSTIE — Gestionnaire</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0c;
+    --surface: #111116;
+    --surface2: #1a1a22;
+    --border: #2a2a36;
+    --accent: #ff4500;
+    --accent2: #ff7c3e;
+    --warn: #ffb300;
+    --green: #00e676;
+    --text: #e8e8f0;
+    --text-dim: #7a7a90;
+    --text-dimmer: #3a3a50;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-mono: 'IBM Plex Mono', monospace;
+    --font-body: 'IBM Plex Sans', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(255,69,0,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,69,0,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* LOGIN */
+  #page-login {
+    position: fixed; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    z-index: 100; background: var(--bg);
+  }
+  .login-box {
+    position: relative; width: 380px;
+    border: 1px solid var(--border);
+    background: var(--surface); padding: 48px 40px;
+    animation: fadeUp 0.5s ease;
+  }
+  .login-box::before {
+    content: ''; position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+  }
+  .login-logo { font-family: var(--font-display); font-size: 42px; letter-spacing: 4px; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+  .login-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 40px; }
+  .field-group { margin-bottom: 20px; }
+  .field-group label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
+  .field-group input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 14px; padding: 12px 16px; outline: none; transition: border-color 0.2s; }
+  .field-group input:focus { border-color: var(--accent); }
+  .btn-primary { width: 100%; background: var(--accent); color: #fff; border: none; font-family: var(--font-display); font-size: 20px; letter-spacing: 3px; padding: 14px; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 8px; }
+  .btn-primary:hover { background: var(--accent2); }
+  .btn-primary:active { transform: scale(0.98); }
+  .login-error { font-family: var(--font-mono); font-size: 11px; color: var(--accent); margin-top: 16px; text-align: center; min-height: 16px; }
+
+  /* APP */
+  #page-app { display: none; position: relative; z-index: 1; min-height: 100vh; }
+
+  .app-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 20px 32px; border-bottom: 1px solid var(--border);
+    background: var(--surface); position: sticky; top: 0; z-index: 50;
+  }
+  .header-logo { font-family: var(--font-display); font-size: 28px; letter-spacing: 4px; color: var(--accent); }
+  .header-logo span { color: var(--text-dim); font-size: 14px; letter-spacing: 2px; display: block; font-family: var(--font-mono); margin-top: -4px; }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .pause-counter { font-family: var(--font-mono); font-size: 13px; color: var(--text-dim); padding: 8px 16px; border: 1px solid var(--border); }
+  .pause-counter strong { color: var(--accent); font-size: 18px; }
+  .btn-icon { background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; padding: 8px 14px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+  .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+
+  .tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 32px; background: var(--surface); }
+  .tab { font-family: var(--font-display); font-size: 16px; letter-spacing: 2px; padding: 16px 24px; cursor: pointer; border-bottom: 3px solid transparent; color: var(--text-dim); transition: all 0.2s; user-select: none; }
+  .tab.active { color: var(--text); border-bottom-color: var(--accent); }
+  .tab:hover:not(.active) { color: var(--text); }
+
+  .content { padding: 40px 32px; max-width: 900px; margin: 0 auto; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; animation: fadeUp 0.3s ease; }
+
+  .section-title { font-family: var(--font-display); font-size: 32px; letter-spacing: 4px; color: var(--text); margin-bottom: 4px; }
+  .section-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 36px; }
+
+  /* SEND FORM */
+  .send-card { background: var(--surface); border: 1px solid var(--border); padding: 36px; position: relative; }
+  .send-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+  .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+  .input-block label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
+  .input-block input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 14px; padding: 12px 16px; outline: none; transition: border-color 0.2s; }
+  .input-block input:focus { border-color: var(--accent); }
+
+  .preview-agent { background: var(--bg); border: 1px solid var(--border); padding: 16px 20px; margin-bottom: 24px; display: none; animation: fadeUp 0.2s ease; font-family: var(--font-mono); border-left: 3px solid var(--green); }
+  .preview-agent.visible { display: block; }
+  .preview-name { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+  .preview-info { font-size: 12px; color: var(--text-dim); letter-spacing: 1px; }
+
+  .btn-send { width: 100%; background: var(--accent); color: #fff; border: none; font-family: var(--font-display); font-size: 24px; letter-spacing: 4px; padding: 18px; cursor: pointer; transition: all 0.2s; }
+  .btn-send:hover:not(:disabled) { background: var(--accent2); }
+  .btn-send:disabled { background: var(--text-dimmer); cursor: not-allowed; color: var(--text-dim); }
+  .btn-send:active:not(:disabled) { transform: scale(0.99); }
+  .send-warning { font-family: var(--font-mono); font-size: 11px; color: var(--warn); text-align: center; margin-top: 12px; min-height: 16px; letter-spacing: 1px; }
+
+  /* CAPACITY */
+  .capacity-bar { display: flex; gap: 8px; margin-bottom: 32px; align-items: center; }
+  .cap-dot { width: 36px; height: 36px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 14px; color: var(--text-dimmer); transition: all 0.3s; }
+  .cap-dot.used { border-color: var(--accent); background: rgba(255,69,0,0.15); color: var(--accent); }
+  .cap-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-left: 8px; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* DASHBOARD */
+  .dash-empty { text-align: center; padding: 80px 0; font-family: var(--font-mono); color: var(--text-dimmer); font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+  .dash-empty .big { font-size: 64px; margin-bottom: 16px; }
+  .agent-list { display: flex; flex-direction: column; gap: 12px; }
+  .agent-card { background: var(--surface); border: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; position: relative; animation: slideIn 0.3s ease; }
+  .agent-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--green); }
+  .agent-card.warning::before { background: var(--warn); }
+  .agent-card.overtime::before { background: var(--accent); }
+  .agent-left { display: flex; flex-direction: column; gap: 4px; }
+  .agent-num { font-family: var(--font-mono); font-size: 10px; color: var(--text-dimmer); letter-spacing: 2px; text-transform: uppercase; }
+  .agent-name { font-family: var(--font-body); font-size: 18px; font-weight: 600; color: var(--text); }
+  .agent-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
+  .agent-right { display: flex; align-items: center; gap: 24px; }
+  .agent-timer { text-align: right; }
+  .timer-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .timer-value { font-family: var(--font-mono); font-size: 28px; font-weight: 600; color: var(--green); letter-spacing: 2px; transition: color 0.3s; }
+  .timer-value.warning { color: var(--warn); }
+  .timer-value.overtime { color: var(--accent); animation: pulse 1s infinite; }
+  .agent-start { font-family: var(--font-mono); font-size: 10px; color: var(--text-dimmer); text-align: right; margin-top: 2px; }
+  .btn-recall { background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; padding: 8px 14px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+  .btn-recall:hover { border-color: var(--green); color: var(--green); }
+
+  /* ADMIN */
+  .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
+  .admin-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; position: relative; }
+  .admin-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--warn), transparent); }
+  .admin-card h3 { font-family: var(--font-display); font-size: 20px; letter-spacing: 3px; margin-bottom: 20px; color: var(--text); }
+  .user-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; max-height: 200px; overflow-y: auto; }
+  .user-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 10px 14px; border: 1px solid var(--border); font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
+  .user-item .user-role { font-size: 10px; color: var(--text-dimmer); letter-spacing: 1px; text-transform: uppercase; }
+  .btn-del { background: none; border: none; color: var(--text-dimmer); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 6px; transition: color 0.2s; }
+  .btn-del:hover { color: var(--accent); }
+  .add-user-form { display: flex; flex-direction: column; gap: 10px; }
+  .add-user-form input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 13px; padding: 10px 14px; outline: none; transition: border-color 0.2s; }
+  .add-user-form input:focus { border-color: var(--warn); }
+  .btn-add { background: none; border: 1px solid var(--warn); color: var(--warn); font-family: var(--font-display); font-size: 16px; letter-spacing: 2px; padding: 10px; cursor: pointer; transition: all 0.2s; }
+  .btn-add:hover { background: var(--warn); color: var(--bg); }
+
+  /* SHEETS */
+  .sheets-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; position: relative; margin-bottom: 24px; }
+  .sheets-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #4ade80, transparent); }
+  .sheets-card h3 { font-family: var(--font-display); font-size: 20px; letter-spacing: 3px; margin-bottom: 8px; }
+  .sheets-card p { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); line-height: 1.8; margin-bottom: 20px; }
+  .sheets-card input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 13px; padding: 12px 16px; outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
+  .sheets-card input:focus { border-color: #4ade80; }
+  .btn-test { background: none; border: 1px solid #4ade80; color: #4ade80; font-family: var(--font-display); font-size: 16px; letter-spacing: 2px; padding: 10px 24px; cursor: pointer; transition: all 0.2s; }
+  .btn-test:hover { background: #4ade80; color: var(--bg); }
+  .status-msg { font-family: var(--font-mono); font-size: 11px; padding: 10px 14px; margin-top: 12px; letter-spacing: 1px; display: none; }
+  .status-msg.ok { background: rgba(0,230,118,0.08); border: 1px solid var(--green); color: var(--green); display: block; }
+  .status-msg.err { background: rgba(255,69,0,0.08); border: 1px solid var(--accent); color: var(--accent); display: block; }
+
+  /* NOTIF */
+  .notif { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--green); padding: 16px 20px; font-family: var(--font-mono); font-size: 12px; color: var(--text); z-index: 200; animation: fadeUp 0.3s ease; letter-spacing: 1px; max-width: 320px; }
+  .notif.err { border-left-color: var(--accent); }
+  .notif.warn { border-left-color: var(--warn); }
+
+  /* MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 150; display: none; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--surface); border: 1px solid var(--border); padding: 36px; width: 420px; animation: fadeUp 0.3s ease; }
+  .modal h3 { font-family: var(--font-display); font-size: 24px; letter-spacing: 3px; margin-bottom: 16px; }
+  .modal p { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); line-height: 1.8; margin-bottom: 24px; }
+  .modal-btns { display: flex; gap: 12px; }
+  .btn-confirm { flex: 1; background: var(--accent); border: none; color: #fff; font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; padding: 12px; cursor: pointer; transition: background 0.2s; }
+  .btn-confirm:hover { background: var(--accent2); }
+  .btn-cancel { flex: 1; background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; padding: 12px; cursor: pointer; transition: all 0.2s; }
+  .btn-cancel:hover { border-color: var(--text-dim); color: var(--text); }
+
+  .hidden { display: none !important; }
+
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); }
+
+  @media (max-width: 650px) {
+    .admin-grid { grid-template-columns: 1fr; }
+    .input-row { grid-template-columns: 1fr; }
+    .content { padding: 24px 16px; }
+    .app-header { padding: 16px; }
+    .tabs { padding: 0 16px; }
+    .agent-right { gap: 10px; }
+    .timer-value { font-size: 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="page-login">
+  <div class="login-box">
+    <div class="login-logo">PAUSE</div>
+    <div class="login-sub">Gestionnaire OSTIE — Accès restreint</div>
+    <div class="field-group">
+      <label>Identifiant</label>
+      <input type="text" id="login-user" placeholder="admin" autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label>Mot de passe</label>
+      <input type="password" id="login-pass" placeholder="••••••••">
+    </div>
+    <button class="btn-primary" onclick="doLogin()">CONNEXION</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="page-app">
+  <header class="app-header">
+    <div class="header-logo">
+      PAUSE OSTIE
+      <span>Système de suivi des pauses</span>
+    </div>
+    <div class="header-right">
+      <div class="pause-counter">EN PAUSE : <strong id="hdr-count">0</strong> / 5</div>
+      <button class="btn-icon hidden" id="btn-admin-tab" onclick="switchTab('admin')">⚙ ADMIN</button>
+      <button class="btn-icon" onclick="doLogout()">⏻ DÉCO</button>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('send')" data-tab="send">↑ ENVOYER EN PAUSE</div>
+    <div class="tab" onclick="switchTab('dash')" data-tab="dash">⏱ TABLEAU DE BORD</div>
+    <div class="tab hidden" data-tab="admin" onclick="switchTab('admin')">⚙ ADMINISTRATION</div>
+  </div>
+
+  <div class="content">
+
+    <!-- TAB SEND -->
+    <div class="tab-content active" id="tab-send">
+      <div class="section-title">ENVOYER EN PAUSE</div>
+      <div class="section-sub">Saisir le matricule — maximum 5 agents simultanément</div>
+      <div class="capacity-bar" id="capacity-bar"></div>
+      <div class="send-card">
+        <div class="input-row">
+          <div class="input-block">
+            <label>Matricule</label>
+            <input type="text" id="input-matricule" placeholder="ex: 10234" maxlength="10"
+              oninput="onMatriculeInput(this.value)" onkeydown="if(event.key==='Enter')sendPause()">
+          </div>
+          <div class="input-block">
+            <label>Note (optionnel)</label>
+            <input type="text" id="input-note" placeholder="ex: salle de pause" maxlength="30">
+          </div>
+        </div>
+        <div class="preview-agent" id="preview-agent">
+          <div class="preview-name" id="preview-name">—</div>
+          <div class="preview-info" id="preview-info">—</div>
+        </div>
+        <button class="btn-send" id="btn-send" onclick="sendPause()" disabled>
+          ENVOYER EN PAUSE
+        </button>
+        <div class="send-warning" id="send-warning"></div>
+      </div>
+    </div>
+
+    <!-- TAB DASH -->
+    <div class="tab-content" id="tab-dash">
+      <div class="section-title">TABLEAU DE BORD</div>
+      <div class="section-sub">Agents en pause — chronomètre en temps réel</div>
+      <div id="dash-list">
+        <div class="dash-empty"><div class="big">☕</div>Aucun agent en pause</div>
+      </div>
+    </div>
+
+    <!-- TAB ADMIN -->
+    <div class="tab-content hidden" id="tab-admin">
+      <div class="section-title">ADMINISTRATION</div>
+      <div class="section-sub">Gestion des accès et configuration Google Sheets</div>
+
+      <div class="sheets-card">
+        <h3>GOOGLE SHEETS — CONFIGURATION</h3>
+        <p>
+          Colle l'URL de ton Apps Script Web App déployé.<br>
+          Format attendu dans ta feuille : colonne A = Matricule | B = Nom | C = Équipe/Poste<br>
+          Le script doit retourner un JSON avec les champs : matricule, nom, equipe
+        </p>
+        <input type="text" id="sheets-url" placeholder="https://script.google.com/macros/s/XXXXX/exec">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <button class="btn-test" onclick="saveAndTestSheets()">TESTER LA CONNEXION</button>
+          <button class="btn-test" style="border-color:var(--text-dim);color:var(--text-dim);" onclick="loadSheetsUrl()">CHARGER SAUVEGARDÉ</button>
+        </div>
+        <div class="status-msg" id="sheets-status"></div>
+      </div>
+
+      <div class="admin-grid">
+        <div class="admin-card">
+          <h3>UTILISATEURS</h3>
+          <div class="user-list" id="user-list"></div>
+          <div class="add-user-form">
+            <input type="text" id="new-username" placeholder="Nom d'utilisateur" autocomplete="off">
+            <input type="password" id="new-password" placeholder="Mot de passe" autocomplete="off">
+            <button class="btn-add" onclick="addUser()">+ AJOUTER</button>
+          </div>
+        </div>
+        <div class="admin-card">
+          <h3>STATISTIQUES SESSION</h3>
+          <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim);line-height:2.5;">
+            <div>Connecté en tant que : <span id="stat-user" style="color:var(--text)">—</span></div>
+            <div>En pause en ce moment : <span id="stat-count" style="color:var(--accent)">0</span> / 5</div>
+            <div>Total pauses cette session : <span id="stat-total" style="color:var(--warn)">0</span></div>
+            <div>Agents dans la base : <span id="stat-agents" style="color:var(--green)">0</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="modal-title">CONFIRMATION</h3>
+    <p id="modal-body">Êtes-vous sûr ?</p>
+    <div class="modal-btns">
+      <button class="btn-confirm" id="modal-confirm">OUI</button>
+      <button class="btn-cancel" onclick="closeModal()">ANNULER</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════
+// STATE
+// ════════════════════════
+const MAX_PAUSE = 5;
+let currentUser = null;
+let agentsDB = {};
+let pauseList = [];
+let timerInterval = null;
+let sessionTotal = 0;
+let modalCb = null;
+
+// Agents de démo (remplacés quand Sheets est configuré)
+const DEMO = {
+  '10001': { nom: 'Marie Tremblay', equipe: 'Service client' },
+  '10002': { nom: 'Jean-François Gagnon', equipe: 'Support technique' },
+  '10003': { nom: 'Sophie Bouchard', equipe: 'Ventes' },
+  '10004': { nom: 'Marc-André Côté', equipe: 'Service client' },
+  '10005': { nom: 'Isabelle Roy', equipe: 'Ressources humaines' },
+  '10006': { nom: 'Philippe Leblanc', equipe: 'Support technique' },
+  '10007': { nom: 'Amélie Fortin', equipe: 'Ventes' },
+  '10008': { nom: 'David Lavoie', equipe: 'Service client' },
+};
+Object.assign(agentsDB, DEMO);
+
+// ════════════════════════
+// STORAGE
+// ════════════════════════
+function getUsers() {
+  const raw = localStorage.getItem('pause_users');
+  if (!raw) {
+    const d = [{ username: 'admin', password: 'admin', role: 'admin' }];
+    localStorage.setItem('pause_users', JSON.stringify(d));
+    return d;
+  }
+  return JSON.parse(raw);
+}
+function saveUsers(u) { localStorage.setItem('pause_users', JSON.stringify(u)); }
+function getSheetsUrl() { return localStorage.getItem('pause_sheets_url') || ''; }
+function saveSheetsUrl(u) { localStorage.setItem('pause_sheets_url', u); }
+
+// ════════════════════════
+// LOGIN / LOGOUT
+// ════════════════════════
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  const found = getUsers().find(x => x.username === u && x.password === p);
+  if (!found) {
+    document.getElementById('login-error').textContent = '✕ Identifiants incorrects';
+    document.getElementById('login-pass').value = '';
+    return;
+  }
+  currentUser = found;
+  document.getElementById('page-login').style.display = 'none';
+  document.getElementById('page-app').style.display = 'block';
+  if (found.role === 'admin') {
+    document.getElementById('btn-admin-tab').classList.remove('hidden');
+    document.querySelectorAll('[data-tab="admin"]').forEach(el => el.classList.remove('hidden'));
+    document.getElementById('tab-admin').classList.remove('hidden');
+  }
+  document.getElementById('stat-user').textContent = found.username;
+  initApp();
+}
+
+function doLogout() {
+  currentUser = null;
+  pauseList = [];
+  sessionTotal = 0;
+  clearInterval(timerInterval);
+  document.getElementById('page-app').style.display = 'none';
+  document.getElementById('page-login').style.display = 'flex';
+  document.getElementById('login-user').value = '';
+  document.getElementById('login-pass').value = '';
+  document.getElementById('login-error').textContent = '';
+  // reset tabs
+  document.getElementById('btn-admin-tab').classList.add('hidden');
+  document.querySelectorAll('[data-tab="admin"]').forEach(el => el.classList.add('hidden'));
+  switchTab('send');
+}
+
+// ════════════════════════
+// INIT
+// ════════════════════════
+function initApp() {
+  const url = getSheetsUrl();
+  document.getElementById('sheets-url').value = url;
+  if (url) fetchAgents(url);
+  renderCapacity();
+  renderDashboard();
+  renderUserList();
+  clearInterval(timerInterval);
+  timerInterval = setInterval(tick, 1000);
+}
+
+// ════════════════════════
+// TABS
+// ════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + name));
+  if (name === 'admin') { renderUserList(); updateStats(); }
+  if (name === 'dash') renderDashboard();
+}
+
+// ════════════════════════
+// GOOGLE SHEETS
+// ════════════════════════
+async function fetchAgents(url) {
+  try {
+    const res = await fetch(url + '?action=getAgents');
+    const data = await res.json();
+    agentsDB = {};
+    data.forEach(row => {
+      if (row.matricule) agentsDB[String(row.matricule).trim()] = { nom: row.nom || '—', equipe: row.equipe || '—' };
+    });
+    document.getElementById('stat-agents').textContent = Object.keys(agentsDB).length;
+    notify('✓ Base agents : ' + Object.keys(agentsDB).length + ' agents chargés', 'ok');
+  } catch(e) {
+    notify('Impossible de charger la base. Mode démo actif.', 'warn');
+  }
+}
+
+async function saveAndTestSheets() {
+  const url = document.getElementById('sheets-url').value.trim();
+  const el = document.getElementById('sheets-status');
+  el.className = 'status-msg';
+  el.textContent = '⟳ Test en cours...';
+  el.style.display = 'block';
+  if (!url) { el.className = 'status-msg err'; el.textContent = '✕ URL vide'; return; }
+  saveSheetsUrl(url);
+  try {
+    const res = await fetch(url + '?action=getAgents');
+    const data = await res.json();
+    agentsDB = {};
+    data.forEach(row => {
+      if (row.matricule) agentsDB[String(row.matricule).trim()] = { nom: row.nom || '—', equipe: row.equipe || '—' };
+    });
+    const n = Object.keys(agentsDB).length;
+    el.className = 'status-msg ok';
+    el.textContent = '✓ Connexion réussie — ' + n + ' agents chargés depuis Google Sheets';
+    document.getElementById('stat-agents').textContent = n;
+  } catch(e) {
+    el.className = 'status-msg err';
+    el.textContent = '✕ Erreur de connexion : ' + e.message;
+  }
+}
+
+function loadSheetsUrl() {
+  document.getElementById('sheets-url').value = getSheetsUrl();
+}
+
+// ════════════════════════
+// MATRICULE INPUT
+// ════════════════════════
+function onMatriculeInput(val) {
+  const mat = val.trim();
+  const preview = document.getElementById('preview-agent');
+  const btn = document.getElementById('btn-send');
+  const warn = document.getElementById('send-warning');
+
+  if (!mat) { preview.classList.remove('visible'); btn.disabled = true; warn.textContent = ''; return; }
+
+  if (pauseList.find(p => String(p.matricule) === mat)) {
+    preview.classList.remove('visible'); btn.disabled = true;
+    warn.textContent = '⚠ Cet agent est déjà en pause.'; return;
+  }
+  if (pauseList.length >= MAX_PAUSE) {
+    preview.classList.remove('visible'); btn.disabled = true;
+    warn.textContent = '⛔ Maximum de 5 agents en pause atteint.'; return;
+  }
+
+  const agent = agentsDB[mat];
+  if (agent) {
+    document.getElementById('preview-name').textContent = agent.nom;
+    document.getElementById('preview-info').textContent = 'Matricule : ' + mat + ' — ' + agent.equipe;
+    preview.classList.add('visible');
+    btn.disabled = false;
+    warn.textContent = '';
+  } else {
+    preview.classList.remove('visible'); btn.disabled = true;
+    warn.textContent = Object.keys(agentsDB).length === 0
+      ? '⚠ Base non chargée. Configurez Google Sheets en Admin.'
+      : '✕ Matricule introuvable.';
+  }
+}
+
+// ════════════════════════
+// SEND / RECALL
+// ════════════════════════
+function sendPause() {
+  const mat = document.getElementById('input-matricule').value.trim();
+  const note = document.getElementById('input-note').value.trim();
+  if (!mat || pauseList.length >= MAX_PAUSE) return;
+  const agent = agentsDB[mat];
+  if (!agent) return;
+
+  pauseList.push({ id: Date.now(), matricule: mat, nom: agent.nom, equipe: agent.equipe, note, startTime: Date.now() });
+  sessionTotal++;
+
+  document.getElementById('input-matricule').value = '';
+  document.getElementById('input-note').value = '';
+  document.getElementById('preview-agent').classList.remove('visible');
+  document.getElementById('btn-send').disabled = true;
+  document.getElementById('send-warning').textContent = '';
+
+  renderCapacity();
+  renderDashboard();
+  updateStats();
+  notify('✓ ' + agent.nom + ' envoyé(e) en pause');
+}
+
+function recallAgent(id) {
+  const p = pauseList.find(x => x.id === id);
+  if (!p) return;
+  openModal('RETIRER DE LA PAUSE', p.nom + ' sera retiré(e) de la liste de pause.', () => {
+    pauseList = pauseList.filter(x => x.id !== id);
+    renderCapacity();
+    renderDashboard();
+    updateStats();
+    onMatriculeInput(document.getElementById('input-matricule').value);
+    notify('↩ ' + p.nom + ' retiré(e) de la pause', 'warn');
+  });
+}
+
+// ════════════════════════
+// RENDER
+// ════════════════════════
+function renderCapacity() {
+  const bar = document.getElementById('capacity-bar');
+  bar.innerHTML = '';
+  for (let i = 1; i <= MAX_PAUSE; i++) {
+    const d = document.createElement('div');
+    d.className = 'cap-dot' + (i <= pauseList.length ? ' used' : '');
+    d.textContent = i;
+    bar.appendChild(d);
+  }
+  const lbl = document.createElement('div');
+  lbl.className = 'cap-label';
+  lbl.textContent = pauseList.length + ' / 5 en pause';
+  bar.appendChild(lbl);
+  document.getElementById('hdr-count').textContent = pauseList.length;
+}
+
+function renderDashboard() {
+  const c = document.getElementById('dash-list');
+  if (pauseList.length === 0) {
+    c.innerHTML = '<div class="dash-empty"><div class="big">☕</div>Aucun agent en pause</div>';
+    return;
+  }
+  c.innerHTML = '<div class="agent-list">' + pauseList.map(p => {
+    const elapsed = Math.floor((Date.now() - p.startTime) / 1000);
+    const cls = elapsed >= 900 ? 'overtime' : elapsed >= 720 ? 'warning' : '';
+    return `<div class="agent-card ${cls}" id="card-${p.id}">
+      <div class="agent-left">
+        <div class="agent-num">MATRICULE ${p.matricule}</div>
+        <div class="agent-name">${p.nom}</div>
+        <div class="agent-meta">${p.equipe}${p.note ? ' — ' + p.note : ''}</div>
+      </div>
+      <div class="agent-right">
+        <div class="agent-timer">
+          <div class="timer-label">Durée</div>
+          <div class="timer-value ${cls}" id="timer-${p.id}">${fmt(elapsed)}</div>
+          <div class="agent-start">Début : ${fmtH(p.startTime)}</div>
+        </div>
+        <button class="btn-recall" onclick="recallAgent(${p.id})">✓ RETOUR</button>
+      </div>
+    </div>`;
+  }).join('') + '</div>';
+}
+
+function tick() {
+  pauseList.forEach(p => {
+    const e = Math.floor((Date.now() - p.startTime) / 1000);
+    const cls = e >= 900 ? 'overtime' : e >= 720 ? 'warning' : '';
+    const te = document.getElementById('timer-' + p.id);
+    const ce = document.getElementById('card-' + p.id);
+    if (te) { te.textContent = fmt(e); te.className = 'timer-value ' + cls; }
+    if (ce) ce.className = 'agent-card ' + cls;
+  });
+}
+
+function fmt(s) { return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
+function fmtH(ts) { return new Date(ts).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+
+// ════════════════════════
+// ADMIN
+// ════════════════════════
+function renderUserList() {
+  const users = getUsers();
+  document.getElementById('user-list').innerHTML = users.map((u, i) => `
+    <div class="user-item">
+      <div><strong>${u.username}</strong><div class="user-role">${u.role}</div></div>
+      ${u.username !== 'admin'
+        ? `<button class="btn-del" onclick="deleteUser(${i})">✕</button>`
+        : '<span style="font-size:10px;color:var(--text-dimmer)">PROTÉGÉ</span>'}
+    </div>`).join('');
+}
+
+function addUser() {
+  const un = document.getElementById('new-username').value.trim();
+  const pw = document.getElementById('new-password').value;
+  if (!un || !pw) { notify('Remplissez tous les champs', 'err'); return; }
+  const users = getUsers();
+  if (users.find(u => u.username === un)) { notify('Utilisateur déjà existant', 'err'); return; }
+  users.push({ username: un, password: pw, role: 'user' });
+  saveUsers(users);
+  document.getElementById('new-username').value = '';
+  document.getElementById('new-password').value = '';
+  renderUserList();
+  notify('✓ Utilisateur ' + un + ' ajouté');
+}
+
+function deleteUser(idx) {
+  const users = getUsers();
+  const u = users[idx];
+  if (!u || u.username === 'admin') return;
+  openModal('SUPPRIMER ' + u.username.toUpperCase(), 'Cet utilisateur sera supprimé définitivement.', () => {
+    users.splice(idx, 1);
+    saveUsers(users);
+    renderUserList();
+    notify('Utilisateur supprimé', 'warn');
+  });
+}
+
+function updateStats() {
+  document.getElementById('stat-count').textContent = pauseList.length;
+  document.getElementById('stat-total').textContent = sessionTotal;
+  document.getElementById('stat-agents').textContent = Object.keys(agentsDB).length;
+}
+
+// ════════════════════════
+// MODAL
+// ════════════════════════
+function openModal(title, body, cb) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').textContent = body;
+  modalCb = cb;
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modal-confirm').onclick = () => { closeModal(); if (modalCb) modalCb(); };
+}
+function closeModal() { document.getElementById('modal').classList.remove('open'); modalCb = null; }
+
+// ════════════════════════
+// NOTIFICATIONS
+// ════════════════════════
+function notify(msg, type = 'ok') {
+  const el = document.createElement('div');
+  el.className = 'notif ' + type;
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 3500);
+}
+</script>
+</body>
+</html>
