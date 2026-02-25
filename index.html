@@ -186,6 +186,12 @@
   .agent-name { font-size: 20px; font-weight: 700; color: var(--text); }
   .agent-meta { font-size: 12px; font-weight: 500; color: var(--text-dim); }
   .agent-timestamps { font-size: 12px; font-weight: 500; color: var(--text-dim); margin-top: 4px; }
+  .agent-field { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; line-height: 1.5; }
+  .agent-field-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; min-width: 130px; }
+  .agent-field-label::after { content: ' :'; }
+  .agent-field-value { font-size: 14px; font-weight: 600; color: var(--text); }
+  .agent-name-val { font-size: 16px; font-weight: 800; color: #ffffff; }
+  .agent-time-val { font-size: 13px; font-weight: 700; color: var(--blue); }
 
   .agent-right { display: flex; align-items: center; gap: 20px; }
   .agent-timer { text-align: right; }
@@ -335,7 +341,7 @@
   <div class="tabs">
     <div class="tab active" onclick="switchTab('send')" data-tab="send">↑ ENVOYER EN PAUSE</div>
     <div class="tab" onclick="switchTab('dash')" data-tab="dash">⏱ EN COURS</div>
-    <div class="tab" onclick="switchTab('history')" data-tab="history">📋 HISTORIQUE SESSION</div>
+    <div class="tab" onclick="switchTab('history')" data-tab="history">📋 HISTORIQUE GLOBAL</div>
     <div class="tab hidden" data-tab="admin" onclick="switchTab('admin')">⚙ ADMIN</div>
   </div>
 
@@ -350,7 +356,7 @@
         <div class="input-row">
           <div class="input-block">
             <label>Matricule</label>
-            <input type="text" id="input-matricule" placeholder="ex: CN00663" maxlength="10"
+            <input type="text" id="input-matricule" placeholder="ex: 10234" maxlength="10"
               oninput="onMatriculeInput(this.value)" onkeydown="if(event.key==='Enter')sendPause()">
           </div>
           <div class="input-block">
@@ -381,7 +387,7 @@
     <!-- HISTORY -->
     <div class="tab-content" id="tab-history">
       <div class="section-title">HISTORIQUE SESSION</div>
-      <div class="section-sub">Pauses terminées depuis votre connexion</div>
+      <div class="section-sub">Toutes les pauses terminées — partagé entre tous les utilisateurs</div>
       <div id="history-list">
         <div class="dash-empty"><div class="big">📋</div>Aucune pause terminée</div>
       </div>
@@ -440,7 +446,7 @@
 // ══════════════════════════════════════════════
 // CONFIG — URL PARTAGÉE POUR TOUS LES UTILISATEURS
 // ══════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwpAouM8kODaeiWh1c4-3vK8RcU2TLEqUNb0-1cXIidHUCIZ1HeaWRqCgBk5t9f4iNd/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbxTkNjXbAZ59AEgKAtxDggPOGWaUMIZUaQ09iesrdvvmi5vAHUYwh_XI5G0cqqrI4zG/exec';
 const MAX_PAUSE = 5;
 const POLL_MS   = 5000;
 
@@ -532,6 +538,7 @@ function initApp() {
   Object.assign(agentsDB, DEMO); // base démo par défaut
   fetchAgents();
   fetchPauses();
+  fetchHistory();
   startPolling();
   renderCapacity();
   renderDashboard();
@@ -548,7 +555,7 @@ function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + name));
   if (name === 'admin') { renderUserList(); updateStats(); }
-  if (name === 'history') renderHistory();
+  if (name === 'history') { fetchHistory(); renderHistory(); }
 }
 
 // ══════════════════════════════════════════════
@@ -631,7 +638,45 @@ async function fetchPauses() {
 
 function startPolling() {
   clearInterval(pollInterval);
-  pollInterval = setInterval(fetchPauses, POLL_MS);
+  pollInterval = setInterval(() => { fetchPauses(); fetchHistory(); }, POLL_MS);
+}
+
+// Charge toutes les pauses TERMINÉES depuis Sheets (historique global)
+async function fetchHistory() {
+  try {
+    const res  = await fetch(SHEETS_URL + '?action=getHistory&t=' + Date.now());
+    const data = await res.json();
+    if (!Array.isArray(data)) return;
+
+    function sheetsDateToTs(str) {
+      if (!str) return null;
+      const m = str.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
+      if (!m) return null;
+      return new Date(m[3], m[2]-1, m[1], m[4], m[5], m[6]).getTime();
+    }
+
+    historyList = data.map(row => {
+      const startTs = sheetsDateToTs(row.startTime);
+      const endTs   = sheetsDateToTs(row.endTime);
+      const dur     = (startTs && endTs) ? Math.floor((endTs - startTs) / 1000) : null;
+      return {
+        id:        String(row.id),
+        matricule: row.matricule,
+        nom:       row.nom,
+        equipe:    row.equipe,
+        note:      row.note || '',
+        startTime: startTs || row.startTime,
+        endTime:   endTs   || row.endTime,
+        fin:       row.endTime,
+        duration:  dur
+      };
+    });
+
+    renderHistory();
+    document.getElementById('stat-total').textContent = historyList.length;
+  } catch(e) {
+    // silencieux
+  }
 }
 
 async function pushPause(entry) {
@@ -810,10 +855,11 @@ function renderDashboard() {
     const cls = elapsed >= 900 ? 'overtime' : elapsed >= 720 ? 'warning' : '';
     return `<div class="agent-card ${cls}" id="card-${p.id}">
       <div class="agent-left">
-        <div class="agent-num">MATRICULE ${p.matricule}</div>
-        <div class="agent-name">${p.nom}</div>
-        <div class="agent-meta">${p.equipe}${p.note ? ' — ' + p.note : ''}</div>
-        <div class="agent-timestamps">Départ en pause : ${fmtDT(p.startTime)}</div>
+        <div class="agent-field"><span class="agent-field-label">Matricule</span><span class="agent-field-value">${p.matricule}</span></div>
+        <div class="agent-field"><span class="agent-field-label">Nom et prénom</span><span class="agent-field-value agent-name-val">${p.nom}</span></div>
+        <div class="agent-field"><span class="agent-field-label">Fonction</span><span class="agent-field-value">${p.equipe}</span></div>
+        <div class="agent-field"><span class="agent-field-label">Départ en pause</span><span class="agent-field-value agent-time-val">${fmtDT(p.startTime)}</span></div>
+        ${p.note ? `<div class="agent-field"><span class="agent-field-label">Note</span><span class="agent-field-value">${p.note}</span></div>` : ''}
       </div>
       <div class="agent-right">
         <div class="agent-timer">
@@ -829,23 +875,27 @@ function renderDashboard() {
 function renderHistory() {
   const c = document.getElementById('history-list');
   if (historyList.length === 0) {
-    c.innerHTML = '<div class="dash-empty"><div class="big">📋</div>Aucune pause terminée cette session</div>';
+    c.innerHTML = '<div class="dash-empty"><div class="big">📋</div>Aucune pause enregistrée</div>';
     return;
   }
-  c.innerHTML = '<div class="history-list">' + historyList.map(p => `
-    <div class="history-card">
+  c.innerHTML = '<div class="history-list">' + historyList.map(p => {
+    const dur = p.duration != null ? fmt(p.duration) : '—';
+    return `<div class="history-card">
       <div class="history-left">
-        <div class="history-name">${p.nom} <span style="font-size:12px;font-weight:500;color:var(--text-dim)">— MAT. ${p.matricule}</span></div>
-        <div class="history-meta">${p.equipe}${p.note ? ' — ' + p.note : ''}</div>
+        <div class="agent-field"><span class="agent-field-label">Matricule</span><span class="agent-field-value">${p.matricule}</span></div>
+        <div class="agent-field"><span class="agent-field-label">Nom et prénom</span><span class="agent-field-value agent-name-val">${p.nom}</span></div>
+        <div class="agent-field"><span class="agent-field-label">Fonction</span><span class="agent-field-value">${p.equipe}</span></div>
+        ${p.note ? `<div class="agent-field"><span class="agent-field-label">Note</span><span class="agent-field-value">${p.note}</span></div>` : ''}
         <div class="history-times">
-          ▶ Départ : ${fmtDT(p.startTime)}&nbsp;&nbsp;&nbsp;◼ Retour : ${fmtDT(p.endTime)}
+          ▶ Départ : <strong>${fmtDT(p.startTime)}</strong>&nbsp;&nbsp;&nbsp;◼ Retour : <strong>${fmtDT(p.endTime || p.fin || '')}</strong>
         </div>
       </div>
       <div class="history-right">
         <div class="history-label">Durée totale</div>
-        <div class="history-duration">${fmt(p.duration)}</div>
+        <div class="history-duration">${dur}</div>
       </div>
-    </div>`).join('') + '</div>';
+    </div>`;
+  }).join('') + '</div>';
 }
 
 function tick() {
@@ -870,10 +920,20 @@ function fmtSheets(ts) {
 function fmt(s) {
   return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
 }
+// Format affiché : 02-25 ⏰ 15 h 33 min 38 s
 function fmtDT(ts) {
-  const d = new Date(ts);
-  return d.toLocaleDateString('fr-CA', { day: '2-digit', month: '2-digit' }) + ' ' +
-         d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  // Accepte un timestamp ms OU une string Sheets "dd/mm/yyyy hh:mm:ss"
+  let d;
+  if (typeof ts === 'string' && ts.includes('/')) {
+    const m = ts.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
+    d = m ? new Date(m[3], m[2]-1, m[1], m[4], m[5], m[6]) : new Date(ts);
+  } else {
+    d = new Date(Number(ts));
+  }
+  const pad = n => String(n).padStart(2,'0');
+  const mo  = pad(d.getMonth()+1);
+  const dy  = pad(d.getDate());
+  return mo + '-' + dy + ' ⏰ ' + d.getHours() + ' h ' + pad(d.getMinutes()) + ' min ' + pad(d.getSeconds()) + ' s';
 }
 
 // ══════════════════════════════════════════════
