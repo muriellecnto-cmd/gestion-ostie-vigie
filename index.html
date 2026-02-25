@@ -4,217 +4,303 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PAUSE OSTIE — Gestionnaire</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --bg: #0a0a0c;
-    --surface: #111116;
-    --surface2: #1a1a22;
-    --border: #2a2a36;
+    --surface: #13131a;
+    --surface2: #1c1c26;
+    --border: #2e2e3e;
     --accent: #ff4500;
     --accent2: #ff7c3e;
     --warn: #ffb300;
     --green: #00e676;
-    --text: #e8e8f0;
-    --text-dim: #7a7a90;
-    --text-dimmer: #3a3a50;
+    --blue: #4fc3f7;
+    --text: #f0f0ff;
+    --text-dim: #9090b0;
+    --text-dimmer: #40405a;
     --font-display: 'Bebas Neue', sans-serif;
-    --font-mono: 'IBM Plex Mono', monospace;
-    --font-body: 'IBM Plex Sans', sans-serif;
+    --font: 'Poppins', sans-serif;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: var(--font-body);
+    font-family: var(--font);
     min-height: 100vh;
     overflow-x: hidden;
   }
+
   body::before {
     content: '';
-    position: fixed;
-    inset: 0;
+    position: fixed; inset: 0;
     background-image:
-      linear-gradient(rgba(255,69,0,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,69,0,0.03) 1px, transparent 1px);
-    background-size: 40px 40px;
-    pointer-events: none;
-    z-index: 0;
+      linear-gradient(rgba(255,69,0,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,69,0,0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
+    pointer-events: none; z-index: 0;
   }
 
-  /* LOGIN */
+  /* ══ LOGIN ══ */
   #page-login {
     position: fixed; inset: 0;
-    display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     z-index: 100; background: var(--bg);
   }
   .login-box {
-    position: relative; width: 380px;
-    border: 1px solid var(--border);
-    background: var(--surface); padding: 48px 40px;
-    animation: fadeUp 0.5s ease;
+    position: relative; width: 400px;
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 52px 44px; animation: fadeUp 0.5s ease;
   }
   .login-box::before {
-    content: ''; position: absolute;
-    top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
   }
-  .login-logo { font-family: var(--font-display); font-size: 42px; letter-spacing: 4px; color: var(--accent); line-height: 1; margin-bottom: 4px; }
-  .login-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 40px; }
+  .login-logo {
+    font-family: var(--font-display);
+    font-size: 48px; letter-spacing: 5px; color: var(--accent);
+    line-height: 1; margin-bottom: 4px;
+  }
+  .login-sub {
+    font-size: 11px; font-weight: 500; color: var(--text-dim);
+    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 44px;
+  }
   .field-group { margin-bottom: 20px; }
-  .field-group label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
-  .field-group input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 14px; padding: 12px 16px; outline: none; transition: border-color 0.2s; }
+  .field-group label {
+    display: block; font-size: 10px; font-weight: 600;
+    letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px;
+  }
+  .field-group input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--font); font-size: 15px; font-weight: 500;
+    padding: 13px 16px; outline: none; transition: border-color 0.2s;
+  }
   .field-group input:focus { border-color: var(--accent); }
-  .btn-primary { width: 100%; background: var(--accent); color: #fff; border: none; font-family: var(--font-display); font-size: 20px; letter-spacing: 3px; padding: 14px; cursor: pointer; transition: background 0.2s, transform 0.1s; margin-top: 8px; }
+  .btn-primary {
+    width: 100%; background: var(--accent); color: #fff; border: none;
+    font-family: var(--font-display); font-size: 22px; letter-spacing: 4px;
+    padding: 15px; cursor: pointer; transition: all 0.2s; margin-top: 8px;
+  }
   .btn-primary:hover { background: var(--accent2); }
   .btn-primary:active { transform: scale(0.98); }
-  .login-error { font-family: var(--font-mono); font-size: 11px; color: var(--accent); margin-top: 16px; text-align: center; min-height: 16px; }
+  .login-error { font-size: 12px; font-weight: 500; color: var(--accent); margin-top: 14px; text-align: center; min-height: 18px; }
 
-  /* APP */
+  /* ══ APP ══ */
   #page-app { display: none; position: relative; z-index: 1; min-height: 100vh; }
 
   .app-header {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 20px 32px; border-bottom: 1px solid var(--border);
+    padding: 18px 32px; border-bottom: 1px solid var(--border);
     background: var(--surface); position: sticky; top: 0; z-index: 50;
   }
-  .header-logo { font-family: var(--font-display); font-size: 28px; letter-spacing: 4px; color: var(--accent); }
-  .header-logo span { color: var(--text-dim); font-size: 14px; letter-spacing: 2px; display: block; font-family: var(--font-mono); margin-top: -4px; }
-  .header-right { display: flex; align-items: center; gap: 16px; }
-  .pause-counter { font-family: var(--font-mono); font-size: 13px; color: var(--text-dim); padding: 8px 16px; border: 1px solid var(--border); }
-  .pause-counter strong { color: var(--accent); font-size: 18px; }
-  .btn-icon { background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; padding: 8px 14px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+  .header-logo { font-family: var(--font-display); font-size: 30px; letter-spacing: 5px; color: var(--accent); line-height: 1; }
+  .header-logo span { font-family: var(--font); font-size: 11px; font-weight: 500; color: var(--text-dim); letter-spacing: 2px; display: block; margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 12px; }
+  .pause-counter {
+    font-size: 13px; font-weight: 600; color: var(--text-dim);
+    padding: 8px 16px; border: 1px solid var(--border);
+  }
+  .pause-counter strong { color: var(--accent); font-size: 20px; font-weight: 800; }
+  .btn-icon {
+    background: none; border: 1px solid var(--border); color: var(--text-dim);
+    font-family: var(--font); font-size: 12px; font-weight: 600;
+    letter-spacing: 1px; padding: 8px 14px; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+  }
   .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
 
+  /* ══ TABS ══ */
   .tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 32px; background: var(--surface); }
-  .tab { font-family: var(--font-display); font-size: 16px; letter-spacing: 2px; padding: 16px 24px; cursor: pointer; border-bottom: 3px solid transparent; color: var(--text-dim); transition: all 0.2s; user-select: none; }
+  .tab {
+    font-family: var(--font); font-size: 13px; font-weight: 600;
+    letter-spacing: 1px; padding: 16px 24px; cursor: pointer;
+    border-bottom: 3px solid transparent; color: var(--text-dim); transition: all 0.2s; user-select: none;
+    text-transform: uppercase;
+  }
   .tab.active { color: var(--text); border-bottom-color: var(--accent); }
   .tab:hover:not(.active) { color: var(--text); }
 
-  .content { padding: 40px 32px; max-width: 900px; margin: 0 auto; }
+  .content { padding: 36px 32px; max-width: 960px; margin: 0 auto; }
   .tab-content { display: none; }
   .tab-content.active { display: block; animation: fadeUp 0.3s ease; }
 
-  .section-title { font-family: var(--font-display); font-size: 32px; letter-spacing: 4px; color: var(--text); margin-bottom: 4px; }
-  .section-sub { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 36px; }
+  .section-title { font-family: var(--font-display); font-size: 34px; letter-spacing: 4px; color: var(--text); margin-bottom: 4px; }
+  .section-sub { font-size: 11px; font-weight: 500; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px; }
 
-  /* SEND FORM */
+  /* ══ CAPACITY ══ */
+  .capacity-bar { display: flex; gap: 8px; margin-bottom: 28px; align-items: center; }
+  .cap-dot {
+    width: 38px; height: 38px; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: var(--text-dimmer); transition: all 0.3s;
+  }
+  .cap-dot.used { border-color: var(--accent); background: rgba(255,69,0,0.15); color: var(--accent); }
+  .cap-label { font-size: 12px; font-weight: 600; color: var(--text-dim); margin-left: 10px; text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ══ SEND FORM ══ */
   .send-card { background: var(--surface); border: 1px solid var(--border); padding: 36px; position: relative; }
   .send-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
   .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
-  .input-block label { display: block; font-family: var(--font-mono); font-size: 10px; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
-  .input-block input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 14px; padding: 12px 16px; outline: none; transition: border-color 0.2s; }
+  .input-block label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px; }
+  .input-block input {
+    width: 100%; background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); font-family: var(--font); font-size: 15px; font-weight: 500;
+    padding: 12px 16px; outline: none; transition: border-color 0.2s;
+  }
   .input-block input:focus { border-color: var(--accent); }
 
-  .preview-agent { background: var(--bg); border: 1px solid var(--border); padding: 16px 20px; margin-bottom: 24px; display: none; animation: fadeUp 0.2s ease; font-family: var(--font-mono); border-left: 3px solid var(--green); }
+  .preview-agent {
+    background: var(--bg); border: 1px solid var(--border); border-left: 3px solid var(--green);
+    padding: 16px 20px; margin-bottom: 24px; display: none; animation: fadeUp 0.2s ease;
+  }
   .preview-agent.visible { display: block; }
-  .preview-name { font-size: 18px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
-  .preview-info { font-size: 12px; color: var(--text-dim); letter-spacing: 1px; }
+  .preview-name { font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .preview-info { font-size: 12px; font-weight: 500; color: var(--text-dim); letter-spacing: 0.5px; }
 
-  .btn-send { width: 100%; background: var(--accent); color: #fff; border: none; font-family: var(--font-display); font-size: 24px; letter-spacing: 4px; padding: 18px; cursor: pointer; transition: all 0.2s; }
+  .btn-send {
+    width: 100%; background: var(--accent); color: #fff; border: none;
+    font-family: var(--font-display); font-size: 26px; letter-spacing: 5px;
+    padding: 18px; cursor: pointer; transition: all 0.2s;
+  }
   .btn-send:hover:not(:disabled) { background: var(--accent2); }
   .btn-send:disabled { background: var(--text-dimmer); cursor: not-allowed; color: var(--text-dim); }
   .btn-send:active:not(:disabled) { transform: scale(0.99); }
-  .send-warning { font-family: var(--font-mono); font-size: 11px; color: var(--warn); text-align: center; margin-top: 12px; min-height: 16px; letter-spacing: 1px; }
+  .send-warning { font-size: 12px; font-weight: 600; color: var(--warn); text-align: center; margin-top: 12px; min-height: 18px; letter-spacing: 0.5px; }
 
-  /* CAPACITY */
-  .capacity-bar { display: flex; gap: 8px; margin-bottom: 32px; align-items: center; }
-  .cap-dot { width: 36px; height: 36px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-family: var(--font-mono); font-size: 14px; color: var(--text-dimmer); transition: all 0.3s; }
-  .cap-dot.used { border-color: var(--accent); background: rgba(255,69,0,0.15); color: var(--accent); }
-  .cap-label { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); margin-left: 8px; text-transform: uppercase; letter-spacing: 1px; }
-
-  /* DASHBOARD */
-  .dash-empty { text-align: center; padding: 80px 0; font-family: var(--font-mono); color: var(--text-dimmer); font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
-  .dash-empty .big { font-size: 64px; margin-bottom: 16px; }
+  /* ══ DASHBOARD ══ */
+  .dash-empty { text-align: center; padding: 80px 0; color: var(--text-dimmer); font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+  .dash-empty .big { font-size: 72px; margin-bottom: 16px; }
   .agent-list { display: flex; flex-direction: column; gap: 12px; }
-  .agent-card { background: var(--surface); border: 1px solid var(--border); padding: 20px 24px; display: flex; align-items: center; justify-content: space-between; position: relative; animation: slideIn 0.3s ease; }
-  .agent-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--green); }
+
+  .agent-card {
+    background: var(--surface); border: 1px solid var(--border);
+    padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;
+    position: relative; animation: slideIn 0.3s ease;
+  }
+  .agent-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--green); }
   .agent-card.warning::before { background: var(--warn); }
-  .agent-card.overtime::before { background: var(--accent); }
-  .agent-left { display: flex; flex-direction: column; gap: 4px; }
-  .agent-num { font-family: var(--font-mono); font-size: 10px; color: var(--text-dimmer); letter-spacing: 2px; text-transform: uppercase; }
-  .agent-name { font-family: var(--font-body); font-size: 18px; font-weight: 600; color: var(--text); }
-  .agent-meta { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
-  .agent-right { display: flex; align-items: center; gap: 24px; }
+  .agent-card.overtime::before { background: var(--accent); animation: pulse 1s infinite; }
+
+  .agent-left { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+  .agent-num { font-size: 10px; font-weight: 700; color: var(--text-dimmer); letter-spacing: 2px; text-transform: uppercase; }
+  .agent-name { font-size: 20px; font-weight: 700; color: var(--text); }
+  .agent-meta { font-size: 12px; font-weight: 500; color: var(--text-dim); }
+  .agent-timestamps { font-size: 11px; font-weight: 500; color: var(--text-dimmer); margin-top: 4px; }
+
+  .agent-right { display: flex; align-items: center; gap: 20px; }
   .agent-timer { text-align: right; }
-  .timer-label { font-family: var(--font-mono); font-size: 10px; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
-  .timer-value { font-family: var(--font-mono); font-size: 28px; font-weight: 600; color: var(--green); letter-spacing: 2px; transition: color 0.3s; }
+  .timer-label { font-size: 10px; font-weight: 700; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
+  .timer-value { font-family: var(--font-display); font-size: 36px; letter-spacing: 2px; color: var(--green); transition: color 0.3s; line-height: 1; }
   .timer-value.warning { color: var(--warn); }
   .timer-value.overtime { color: var(--accent); animation: pulse 1s infinite; }
-  .agent-start { font-family: var(--font-mono); font-size: 10px; color: var(--text-dimmer); text-align: right; margin-top: 2px; }
-  .btn-recall { background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-mono); font-size: 11px; letter-spacing: 1px; padding: 8px 14px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
-  .btn-recall:hover { border-color: var(--green); color: var(--green); }
 
-  /* ADMIN */
+  .btn-recall {
+    background: var(--green); border: none; color: #000;
+    font-family: var(--font); font-size: 12px; font-weight: 800;
+    letter-spacing: 1px; padding: 10px 18px; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+  }
+  .btn-recall:hover { background: #00ff88; transform: scale(1.04); }
+
+  /* ══ HISTORIQUE ══ */
+  .history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+  .history-card {
+    background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid var(--blue);
+    padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
+    animation: fadeUp 0.3s ease;
+  }
+  .history-left { display: flex; flex-direction: column; gap: 3px; }
+  .history-name { font-size: 16px; font-weight: 700; color: var(--text); }
+  .history-meta { font-size: 11px; font-weight: 500; color: var(--text-dim); }
+  .history-times { font-size: 11px; font-weight: 500; color: var(--text-dimmer); }
+  .history-right { text-align: right; }
+  .history-duration { font-family: var(--font-display); font-size: 28px; color: var(--blue); letter-spacing: 2px; }
+  .history-label { font-size: 10px; font-weight: 600; color: var(--text-dimmer); text-transform: uppercase; letter-spacing: 1px; }
+
+  /* ══ ADMIN ══ */
   .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
   .admin-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; position: relative; }
   .admin-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--warn), transparent); }
-  .admin-card h3 { font-family: var(--font-display); font-size: 20px; letter-spacing: 3px; margin-bottom: 20px; color: var(--text); }
+  .admin-card h3 { font-family: var(--font-display); font-size: 22px; letter-spacing: 3px; margin-bottom: 20px; }
   .user-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; max-height: 200px; overflow-y: auto; }
-  .user-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 10px 14px; border: 1px solid var(--border); font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); }
-  .user-item .user-role { font-size: 10px; color: var(--text-dimmer); letter-spacing: 1px; text-transform: uppercase; }
-  .btn-del { background: none; border: none; color: var(--text-dimmer); cursor: pointer; font-size: 16px; line-height: 1; padding: 2px 6px; transition: color 0.2s; }
+  .user-item {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--bg); padding: 10px 14px; border: 1px solid var(--border);
+    font-size: 13px; font-weight: 500; color: var(--text-dim);
+  }
+  .user-item strong { color: var(--text); font-weight: 700; }
+  .user-role { font-size: 10px; font-weight: 600; color: var(--text-dimmer); letter-spacing: 1px; text-transform: uppercase; }
+  .btn-del { background: none; border: none; color: var(--text-dimmer); cursor: pointer; font-size: 18px; padding: 2px 6px; transition: color 0.2s; }
   .btn-del:hover { color: var(--accent); }
   .add-user-form { display: flex; flex-direction: column; gap: 10px; }
-  .add-user-form input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 13px; padding: 10px 14px; outline: none; transition: border-color 0.2s; }
+  .add-user-form input {
+    background: var(--bg); border: 1px solid var(--border); color: var(--text);
+    font-family: var(--font); font-size: 14px; font-weight: 500;
+    padding: 10px 14px; outline: none; transition: border-color 0.2s;
+  }
   .add-user-form input:focus { border-color: var(--warn); }
-  .btn-add { background: none; border: 1px solid var(--warn); color: var(--warn); font-family: var(--font-display); font-size: 16px; letter-spacing: 2px; padding: 10px; cursor: pointer; transition: all 0.2s; }
+  .btn-add {
+    background: none; border: 1px solid var(--warn); color: var(--warn);
+    font-family: var(--font); font-size: 14px; font-weight: 700;
+    letter-spacing: 1px; padding: 10px; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
+  }
   .btn-add:hover { background: var(--warn); color: var(--bg); }
 
-  /* SHEETS */
   .sheets-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; position: relative; margin-bottom: 24px; }
   .sheets-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #4ade80, transparent); }
-  .sheets-card h3 { font-family: var(--font-display); font-size: 20px; letter-spacing: 3px; margin-bottom: 8px; }
-  .sheets-card p { font-family: var(--font-mono); font-size: 11px; color: var(--text-dim); line-height: 1.8; margin-bottom: 20px; }
-  .sheets-card input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font-mono); font-size: 13px; padding: 12px 16px; outline: none; margin-bottom: 12px; transition: border-color 0.2s; }
-  .sheets-card input:focus { border-color: #4ade80; }
-  .btn-test { background: none; border: 1px solid #4ade80; color: #4ade80; font-family: var(--font-display); font-size: 16px; letter-spacing: 2px; padding: 10px 24px; cursor: pointer; transition: all 0.2s; }
-  .btn-test:hover { background: #4ade80; color: var(--bg); }
-  .status-msg { font-family: var(--font-mono); font-size: 11px; padding: 10px 14px; margin-top: 12px; letter-spacing: 1px; display: none; }
+  .sheets-card h3 { font-family: var(--font-display); font-size: 22px; letter-spacing: 3px; margin-bottom: 8px; }
+  .sheets-card p { font-size: 12px; font-weight: 500; color: var(--text-dim); line-height: 1.8; margin-bottom: 16px; }
+  .sheets-url-display {
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 12px 16px; font-size: 12px; font-weight: 500; color: var(--green);
+    word-break: break-all; margin-bottom: 12px;
+  }
+  .status-msg { font-size: 12px; font-weight: 600; padding: 10px 14px; margin-top: 12px; letter-spacing: 0.5px; display: none; }
   .status-msg.ok { background: rgba(0,230,118,0.08); border: 1px solid var(--green); color: var(--green); display: block; }
   .status-msg.err { background: rgba(255,69,0,0.08); border: 1px solid var(--accent); color: var(--accent); display: block; }
 
-  /* NOTIF */
-  .notif { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--green); padding: 16px 20px; font-family: var(--font-mono); font-size: 12px; color: var(--text); z-index: 200; animation: fadeUp 0.3s ease; letter-spacing: 1px; max-width: 320px; }
+  /* ══ NOTIF ══ */
+  .notif {
+    position: fixed; bottom: 24px; right: 24px; background: var(--surface);
+    border: 1px solid var(--border); border-left: 4px solid var(--green);
+    padding: 16px 20px; font-size: 13px; font-weight: 600; color: var(--text);
+    z-index: 200; animation: fadeUp 0.3s ease; max-width: 320px;
+  }
   .notif.err { border-left-color: var(--accent); }
   .notif.warn { border-left-color: var(--warn); }
 
-  /* MODAL */
+  /* ══ MODAL ══ */
   .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 150; display: none; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal { background: var(--surface); border: 1px solid var(--border); padding: 36px; width: 420px; animation: fadeUp 0.3s ease; }
-  .modal h3 { font-family: var(--font-display); font-size: 24px; letter-spacing: 3px; margin-bottom: 16px; }
-  .modal p { font-family: var(--font-mono); font-size: 12px; color: var(--text-dim); line-height: 1.8; margin-bottom: 24px; }
+  .modal { background: var(--surface); border: 1px solid var(--border); padding: 40px; width: 440px; animation: fadeUp 0.3s ease; }
+  .modal h3 { font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; margin-bottom: 12px; }
+  .modal p { font-size: 14px; font-weight: 500; color: var(--text-dim); line-height: 1.7; margin-bottom: 28px; }
   .modal-btns { display: flex; gap: 12px; }
-  .btn-confirm { flex: 1; background: var(--accent); border: none; color: #fff; font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; padding: 12px; cursor: pointer; transition: background 0.2s; }
-  .btn-confirm:hover { background: var(--accent2); }
-  .btn-cancel { flex: 1; background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font-display); font-size: 18px; letter-spacing: 2px; padding: 12px; cursor: pointer; transition: all 0.2s; }
-  .btn-cancel:hover { border-color: var(--text-dim); color: var(--text); }
+  .btn-confirm { flex: 1; background: var(--green); border: none; color: #000; font-family: var(--font); font-size: 15px; font-weight: 800; letter-spacing: 1px; padding: 13px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+  .btn-confirm:hover { background: #00ff88; }
+  .btn-cancel { flex: 1; background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font); font-size: 15px; font-weight: 700; letter-spacing: 1px; padding: 13px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+  .btn-cancel:hover { border-color: var(--text); color: var(--text); }
 
   .hidden { display: none !important; }
 
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes slideIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); }
 
   @media (max-width: 650px) {
-    .admin-grid { grid-template-columns: 1fr; }
-    .input-row { grid-template-columns: 1fr; }
-    .content { padding: 24px 16px; }
-    .app-header { padding: 16px; }
-    .tabs { padding: 0 16px; }
+    .admin-grid, .input-row { grid-template-columns: 1fr; }
+    .content { padding: 20px 14px; }
+    .app-header, .tabs { padding-left: 16px; padding-right: 16px; }
     .agent-right { gap: 10px; }
-    .timer-value { font-size: 20px; }
+    .timer-value { font-size: 26px; }
   }
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
+<!-- ══ LOGIN ══ -->
 <div id="page-login">
   <div class="login-box">
     <div class="login-logo">PAUSE</div>
@@ -232,12 +318,12 @@
   </div>
 </div>
 
-<!-- APP -->
+<!-- ══ APP ══ -->
 <div id="page-app">
   <header class="app-header">
     <div class="header-logo">
       PAUSE OSTIE
-      <span>Système de suivi des pauses</span>
+      <span>Système de suivi — sync en direct</span>
     </div>
     <div class="header-right">
       <div class="pause-counter">EN PAUSE : <strong id="hdr-count">0</strong> / 5</div>
@@ -248,16 +334,17 @@
 
   <div class="tabs">
     <div class="tab active" onclick="switchTab('send')" data-tab="send">↑ ENVOYER EN PAUSE</div>
-    <div class="tab" onclick="switchTab('dash')" data-tab="dash">⏱ TABLEAU DE BORD</div>
-    <div class="tab hidden" data-tab="admin" onclick="switchTab('admin')">⚙ ADMINISTRATION</div>
+    <div class="tab" onclick="switchTab('dash')" data-tab="dash">⏱ EN COURS</div>
+    <div class="tab" onclick="switchTab('history')" data-tab="history">📋 HISTORIQUE SESSION</div>
+    <div class="tab hidden" data-tab="admin" onclick="switchTab('admin')">⚙ ADMIN</div>
   </div>
 
   <div class="content">
 
-    <!-- TAB SEND -->
+    <!-- SEND -->
     <div class="tab-content active" id="tab-send">
       <div class="section-title">ENVOYER EN PAUSE</div>
-      <div class="section-sub">Saisir le matricule — maximum 5 agents simultanément</div>
+      <div class="section-sub">Saisir le matricule — max 5 agents simultanément</div>
       <div class="capacity-bar" id="capacity-bar"></div>
       <div class="send-card">
         <div class="input-row">
@@ -268,7 +355,7 @@
           </div>
           <div class="input-block">
             <label>Note (optionnel)</label>
-            <input type="text" id="input-note" placeholder="ex: salle de pause" maxlength="30">
+            <input type="text" id="input-note" placeholder="ex: salle de pause" maxlength="40">
           </div>
         </div>
         <div class="preview-agent" id="preview-agent">
@@ -282,33 +369,34 @@
       </div>
     </div>
 
-    <!-- TAB DASH -->
+    <!-- DASH -->
     <div class="tab-content" id="tab-dash">
-      <div class="section-title">TABLEAU DE BORD</div>
-      <div class="section-sub">Agents en pause — chronomètre en temps réel</div>
+      <div class="section-title">EN COURS</div>
+      <div class="section-sub">Agents actuellement en pause — mise à jour toutes les 5 s</div>
       <div id="dash-list">
         <div class="dash-empty"><div class="big">☕</div>Aucun agent en pause</div>
       </div>
     </div>
 
-    <!-- TAB ADMIN -->
+    <!-- HISTORY -->
+    <div class="tab-content" id="tab-history">
+      <div class="section-title">HISTORIQUE SESSION</div>
+      <div class="section-sub">Pauses terminées depuis votre connexion</div>
+      <div id="history-list">
+        <div class="dash-empty"><div class="big">📋</div>Aucune pause terminée</div>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
     <div class="tab-content hidden" id="tab-admin">
       <div class="section-title">ADMINISTRATION</div>
-      <div class="section-sub">Gestion des accès et configuration Google Sheets</div>
+      <div class="section-sub">Gestion des accès et statut de connexion</div>
 
       <div class="sheets-card">
-        <h3>GOOGLE SHEETS — CONFIGURATION</h3>
-        <p>
-          Colle l'URL de ton Apps Script Web App déployé.<br>
-          Format attendu dans ta feuille : colonne A = Matricule | B = Nom | C = Équipe/Poste<br>
-          Le script doit retourner un JSON avec les champs : matricule, nom, equipe
-        </p>
-        <input type="text" id="sheets-url" placeholder="https://script.google.com/macros/s/XXXXX/exec">
-        <div style="display:flex;gap:12px;flex-wrap:wrap;">
-          <button class="btn-test" onclick="saveAndTestSheets()">TESTER LA CONNEXION</button>
-          <button class="btn-test" style="border-color:var(--text-dim);color:var(--text-dim);" onclick="loadSheetsUrl()">CHARGER SAUVEGARDÉ</button>
-        </div>
-        <div class="status-msg" id="sheets-status"></div>
+        <h3>CONNEXION GOOGLE SHEETS</h3>
+        <p>URL Apps Script configurée et active pour tous les utilisateurs :</p>
+        <div class="sheets-url-display" id="sheets-url-display">—</div>
+        <div class="status-msg ok" id="sheets-status">✓ URL configurée automatiquement — sync actif</div>
       </div>
 
       <div class="admin-grid">
@@ -323,11 +411,11 @@
         </div>
         <div class="admin-card">
           <h3>STATISTIQUES SESSION</h3>
-          <div style="font-family:var(--font-mono);font-size:13px;color:var(--text-dim);line-height:2.5;">
-            <div>Connecté en tant que : <span id="stat-user" style="color:var(--text)">—</span></div>
-            <div>En pause en ce moment : <span id="stat-count" style="color:var(--accent)">0</span> / 5</div>
-            <div>Total pauses cette session : <span id="stat-total" style="color:var(--warn)">0</span></div>
-            <div>Agents dans la base : <span id="stat-agents" style="color:var(--green)">0</span></div>
+          <div style="font-size:13px;font-weight:500;color:var(--text-dim);line-height:2.6;">
+            <div>Connecté : <span id="stat-user" style="color:var(--text);font-weight:700;">—</span></div>
+            <div>En pause maintenant : <span id="stat-count" style="color:var(--accent);font-weight:800;">0</span> / 5</div>
+            <div>Pauses terminées : <span id="stat-total" style="color:var(--warn);font-weight:800;">0</span></div>
+            <div>Agents dans la base : <span id="stat-agents" style="color:var(--green);font-weight:800;">0</span></div>
           </div>
         </div>
       </div>
@@ -342,46 +430,46 @@
     <h3 id="modal-title">CONFIRMATION</h3>
     <p id="modal-body">Êtes-vous sûr ?</p>
     <div class="modal-btns">
-      <button class="btn-confirm" id="modal-confirm">OUI</button>
+      <button class="btn-confirm" id="modal-confirm">CONFIRMER</button>
       <button class="btn-cancel" onclick="closeModal()">ANNULER</button>
     </div>
   </div>
 </div>
 
 <script>
-// ════════════════════════
-// STATE
-// ════════════════════════
+// ══════════════════════════════════════════════
+// CONFIG — URL PARTAGÉE POUR TOUS LES UTILISATEURS
+// ══════════════════════════════════════════════
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzjVL60T71zzT33lYHn0T8ZyRy0HbNcf1lCizwSnsZQaF1TxuUJA2hQc7Y4ziXm5B2P/exec';
 const MAX_PAUSE = 5;
-const POLL_INTERVAL = 5000; // sync toutes les 5 secondes
+const POLL_MS   = 5000;
 
-// ⬇ COLLE TON URL APPS SCRIPT ICI — sera la même pour tous les utilisateurs
-const SHEETS_URL_DEFAULT = ''; // ex: 'https://script.google.com/macros/s/XXX/exec'
-let currentUser = null;
-let agentsDB = {};
-let pauseList = [];   // source de vérité = Google Sheets
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+let currentUser  = null;
+let agentsDB     = {};
+let pauseList    = [];   // pauses actives (source = Sheets)
+let historyList  = [];   // pauses terminées cette session
 let timerInterval = null;
-let pollInterval = null;
-let sessionTotal = 0;
-let modalCb = null;
-let isSyncing = false;
+let pollInterval  = null;
+let modalCb       = null;
 
-// Agents de démo (remplacés quand Sheets est configuré)
+// Démo si Sheets ne répond pas
 const DEMO = {
-  '10001': { nom: 'Marie Tremblay', equipe: 'Service client' },
-  '10002': { nom: 'Jean-François Gagnon', equipe: 'Support technique' },
-  '10003': { nom: 'Sophie Bouchard', equipe: 'Ventes' },
-  '10004': { nom: 'Marc-André Côté', equipe: 'Service client' },
-  '10005': { nom: 'Isabelle Roy', equipe: 'Ressources humaines' },
-  '10006': { nom: 'Philippe Leblanc', equipe: 'Support technique' },
-  '10007': { nom: 'Amélie Fortin', equipe: 'Ventes' },
-  '10008': { nom: 'David Lavoie', equipe: 'Service client' },
+  '10001': { nom: 'Marie Tremblay',        equipe: 'Service client' },
+  '10002': { nom: 'Jean-François Gagnon',  equipe: 'Support technique' },
+  '10003': { nom: 'Sophie Bouchard',       equipe: 'Ventes' },
+  '10004': { nom: 'Marc-André Côté',       equipe: 'Service client' },
+  '10005': { nom: 'Isabelle Roy',          equipe: 'Ressources humaines' },
+  '10006': { nom: 'Philippe Leblanc',      equipe: 'Support technique' },
+  '10007': { nom: 'Amélie Fortin',         equipe: 'Ventes' },
+  '10008': { nom: 'David Lavoie',          equipe: 'Service client' },
 };
-Object.assign(agentsDB, DEMO);
 
-// ════════════════════════
-// STORAGE
-// ════════════════════════
+// ══════════════════════════════════════════════
+// STORAGE USERS
+// ══════════════════════════════════════════════
 function getUsers() {
   const raw = localStorage.getItem('pause_users');
   if (!raw) {
@@ -392,13 +480,12 @@ function getUsers() {
   return JSON.parse(raw);
 }
 function saveUsers(u) { localStorage.setItem('pause_users', JSON.stringify(u)); }
-function getSheetsUrl() { return localStorage.getItem('pause_sheets_url') || ''; }
-function saveSheetsUrl(u) { localStorage.setItem('pause_sheets_url', u); }
 
-// ════════════════════════
+// ══════════════════════════════════════════════
 // LOGIN / LOGOUT
-// ════════════════════════
+// ══════════════════════════════════════════════
 document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-pass').focus(); });
 
 function doLogin() {
   const u = document.getElementById('login-user').value.trim();
@@ -418,13 +505,13 @@ function doLogin() {
     document.getElementById('tab-admin').classList.remove('hidden');
   }
   document.getElementById('stat-user').textContent = found.username;
+  document.getElementById('sheets-url-display').textContent = SHEETS_URL;
   initApp();
 }
 
 function doLogout() {
   currentUser = null;
-  pauseList = [];
-  sessionTotal = 0;
+  pauseList = []; historyList = [];
   clearInterval(timerInterval);
   clearInterval(pollInterval);
   document.getElementById('page-app').style.display = 'none';
@@ -434,108 +521,96 @@ function doLogout() {
   document.getElementById('login-error').textContent = '';
   document.getElementById('btn-admin-tab').classList.add('hidden');
   document.querySelectorAll('[data-tab="admin"]').forEach(el => el.classList.add('hidden'));
+  document.getElementById('tab-admin').classList.add('hidden');
   switchTab('send');
 }
 
-// ════════════════════════
+// ══════════════════════════════════════════════
 // INIT
-// ════════════════════════
+// ══════════════════════════════════════════════
 function initApp() {
-  // SHEETS_URL_DEFAULT prime sur le localStorage
-  // → tous les users partagent la même URL automatiquement
-  const url = SHEETS_URL_DEFAULT || getSheetsUrl();
-  if (url) saveSheetsUrl(url);
-  document.getElementById('sheets-url').value = url;
-
-  if (url) {
-    fetchAgents(url);
-    fetchPauses();
-    startPolling();
-  } else {
-    notify('⚠ Aucune URL Sheets — configurez-la en Admin', 'warn');
-  }
-
+  Object.assign(agentsDB, DEMO); // base démo par défaut
+  fetchAgents();
+  fetchPauses();
+  startPolling();
   renderCapacity();
   renderDashboard();
+  renderHistory();
   renderUserList();
   clearInterval(timerInterval);
   timerInterval = setInterval(tick, 1000);
 }
 
-// ════════════════════════
+// ══════════════════════════════════════════════
 // TABS
-// ════════════════════════
+// ══════════════════════════════════════════════
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + name));
   if (name === 'admin') { renderUserList(); updateStats(); }
-  if (name === 'dash') renderDashboard();
+  if (name === 'history') renderHistory();
 }
 
-// ════════════════════════
-// GOOGLE SHEETS — AGENTS
-// ════════════════════════
-async function fetchAgents(url) {
-  try {
-    const res = await fetch(url + '?action=getAgents');
-    const data = await res.json();
-    agentsDB = {};
-    data.forEach(row => {
-      if (row.matricule) agentsDB[String(row.matricule).trim()] = { nom: row.nom || '—', equipe: row.equipe || '—' };
-    });
-    document.getElementById('stat-agents').textContent = Object.keys(agentsDB).length;
-    notify('✓ Base agents : ' + Object.keys(agentsDB).length + ' agents chargés', 'ok');
-  } catch(e) {
-    notify('Impossible de charger la base. Mode démo actif.', 'warn');
-  }
-}
-
-// ════════════════════════
-// GOOGLE SHEETS — PAUSES (SYNC TEMPS RÉEL)
-// ════════════════════════
-
-// Indicateur de sync dans le header
+// ══════════════════════════════════════════════
+// SYNC STATUS DOT
+// ══════════════════════════════════════════════
 function setSyncStatus(state) {
-  // state: 'ok' | 'syncing' | 'err'
   let dot = document.getElementById('sync-dot');
   if (!dot) {
     dot = document.createElement('div');
     dot.id = 'sync-dot';
-    dot.style.cssText = 'font-family:var(--font-mono);font-size:10px;letter-spacing:1px;padding:8px 12px;border:1px solid var(--border);color:var(--text-dim);transition:all 0.3s;';
+    dot.style.cssText = 'font-size:11px;font-weight:700;letter-spacing:1px;padding:8px 12px;border:1px solid;transition:all 0.3s;text-transform:uppercase;';
     document.querySelector('.header-right').prepend(dot);
   }
-  const states = {
-    ok:      { text: '⬤ SYNC', color: 'var(--green)' },
-    syncing: { text: '⟳ SYNC', color: 'var(--warn)' },
-    err:     { text: '⬤ HORS LIGNE', color: 'var(--accent)' },
-  };
-  dot.textContent = states[state].text;
-  dot.style.color = states[state].color;
-  dot.style.borderColor = states[state].color;
+  const s = { ok: ['⬤ SYNC', 'var(--green)'], syncing: ['⟳ SYNC', 'var(--warn)'], err: ['⬤ HORS LIGNE', 'var(--accent)'] }[state];
+  dot.textContent = s[0];
+  dot.style.color = s[1];
+  dot.style.borderColor = s[1];
 }
 
-// Récupère les pauses depuis Sheets et met à jour l'UI
+// ══════════════════════════════════════════════
+// SHEETS — AGENTS
+// ══════════════════════════════════════════════
+async function fetchAgents() {
+  try {
+    const res = await fetch(SHEETS_URL + '?action=getAgents&t=' + Date.now());
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      agentsDB = {};
+      data.forEach(r => {
+        if (r.matricule) agentsDB[String(r.matricule).trim()] = { nom: r.nom || '—', equipe: r.equipe || '—' };
+      });
+      document.getElementById('stat-agents').textContent = Object.keys(agentsDB).length;
+      notify('✓ ' + Object.keys(agentsDB).length + ' agents chargés', 'ok');
+    }
+  } catch(e) {
+    notify('⚠ Base agents : mode démo actif', 'warn');
+  }
+}
+
+// ══════════════════════════════════════════════
+// SHEETS — PAUSES
+// ══════════════════════════════════════════════
 async function fetchPauses() {
-  const url = getSheetsUrl();
-  if (!url) return;
-  isSyncing = true;
   setSyncStatus('syncing');
   try {
-    const res = await fetch(url + '?action=getPauses&t=' + Date.now());
+    const res = await fetch(SHEETS_URL + '?action=getPauses&t=' + Date.now());
     const data = await res.json();
-    // Merge : on garde les startTime locaux si l'id existe déjà (évite les sauts de chrono)
-    const newList = data.map(row => {
+    if (!Array.isArray(data)) throw new Error('réponse invalide');
+
+    // Merge pour préserver les startTime locaux (chrono stable)
+    pauseList = data.map(row => {
       const existing = pauseList.find(p => String(p.id) === String(row.id));
       return {
-        id: row.id,
+        id:        row.id,
         matricule: row.matricule,
-        nom: row.nom,
-        equipe: row.equipe,
-        note: row.note || '',
+        nom:       row.nom,
+        equipe:    row.equipe,
+        note:      row.note || '',
         startTime: existing ? existing.startTime : Number(row.startTime)
       };
     });
-    pauseList = newList;
+
     renderCapacity();
     renderDashboard();
     updateStats();
@@ -543,22 +618,18 @@ async function fetchPauses() {
   } catch(e) {
     setSyncStatus('err');
   }
-  isSyncing = false;
 }
 
 function startPolling() {
   clearInterval(pollInterval);
-  pollInterval = setInterval(fetchPauses, POLL_INTERVAL);
+  pollInterval = setInterval(fetchPauses, POLL_MS);
 }
 
-// Envoie une nouvelle pause vers Sheets (GET pour éviter CORS)
 async function pushPause(entry) {
-  const url = getSheetsUrl();
-  if (!url) return false;
   setSyncStatus('syncing');
   try {
-    const params = new URLSearchParams({
-      action: 'addPause',
+    const p = new URLSearchParams({
+      action:    'addPause',
       id:        String(entry.id),
       matricule: entry.matricule,
       nom:       entry.nom,
@@ -566,121 +637,69 @@ async function pushPause(entry) {
       note:      entry.note || '',
       startTime: String(entry.startTime)
     });
-    await fetch(url + '?' + params.toString());
+    await fetch(SHEETS_URL + '?' + p.toString());
     setSyncStatus('ok');
-    await fetchPauses(); // refresh immédiat
+    await fetchPauses();
     return true;
-  } catch(e) {
-    setSyncStatus('err');
-    return false;
-  }
+  } catch(e) { setSyncStatus('err'); return false; }
 }
 
-// Retire une pause depuis Sheets (GET pour éviter CORS)
-async function removePause(id) {
-  const url = getSheetsUrl();
-  if (!url) return false;
+async function callRemovePause(id) {
   setSyncStatus('syncing');
   try {
-    const params = new URLSearchParams({ action: 'removePause', id: String(id) });
-    await fetch(url + '?' + params.toString());
+    const p = new URLSearchParams({ action: 'removePause', id: String(id) });
+    await fetch(SHEETS_URL + '?' + p.toString());
     setSyncStatus('ok');
-    await fetchPauses(); // refresh immédiat
+    await fetchPauses();
     return true;
-  } catch(e) {
-    setSyncStatus('err');
-    return false;
-  }
+  } catch(e) { setSyncStatus('err'); return false; }
 }
 
-async function saveAndTestSheets() {
-  const url = document.getElementById('sheets-url').value.trim();
-  const el = document.getElementById('sheets-status');
-  el.className = 'status-msg';
-  el.textContent = '⟳ Test en cours...';
-  el.style.display = 'block';
-  if (!url) { el.className = 'status-msg err'; el.textContent = '✕ URL vide'; return; }
-  saveSheetsUrl(url);
-  try {
-    const res = await fetch(url + '?action=getAgents');
-    const data = await res.json();
-    agentsDB = {};
-    data.forEach(row => {
-      if (row.matricule) agentsDB[String(row.matricule).trim()] = { nom: row.nom || '—', equipe: row.equipe || '—' };
-    });
-    const n = Object.keys(agentsDB).length;
-    el.className = 'status-msg ok';
-    el.textContent = '✓ Connexion réussie — ' + n + ' agents chargés depuis Google Sheets';
-    document.getElementById('stat-agents').textContent = n;
-    fetchPauses();
-    startPolling();
-  } catch(e) {
-    el.className = 'status-msg err';
-    el.textContent = '✕ Erreur de connexion : ' + e.message;
-  }
-}
-
-function loadSheetsUrl() {
-  document.getElementById('sheets-url').value = getSheetsUrl();
-}
-
-// ════════════════════════
+// ══════════════════════════════════════════════
 // MATRICULE INPUT
-// ════════════════════════
+// ══════════════════════════════════════════════
 function onMatriculeInput(val) {
   const mat = val.trim();
   const preview = document.getElementById('preview-agent');
-  const btn = document.getElementById('btn-send');
-  const warn = document.getElementById('send-warning');
+  const btn     = document.getElementById('btn-send');
+  const warn    = document.getElementById('send-warning');
 
   if (!mat) { preview.classList.remove('visible'); btn.disabled = true; warn.textContent = ''; return; }
-
   if (pauseList.find(p => String(p.matricule) === mat)) {
     preview.classList.remove('visible'); btn.disabled = true;
     warn.textContent = '⚠ Cet agent est déjà en pause.'; return;
   }
   if (pauseList.length >= MAX_PAUSE) {
     preview.classList.remove('visible'); btn.disabled = true;
-    warn.textContent = '⛔ Maximum de 5 agents en pause atteint.'; return;
+    warn.textContent = '⛔ Maximum 5 agents en pause atteint.'; return;
   }
-
   const agent = agentsDB[mat];
   if (agent) {
     document.getElementById('preview-name').textContent = agent.nom;
-    document.getElementById('preview-info').textContent = 'Matricule : ' + mat + ' — ' + agent.equipe;
+    document.getElementById('preview-info').textContent = 'Matricule : ' + mat + '  —  ' + agent.equipe;
     preview.classList.add('visible');
     btn.disabled = false;
     warn.textContent = '';
   } else {
     preview.classList.remove('visible'); btn.disabled = true;
-    warn.textContent = Object.keys(agentsDB).length === 0
-      ? '⚠ Base non chargée. Configurez Google Sheets en Admin.'
-      : '✕ Matricule introuvable.';
+    warn.textContent = '✕ Matricule introuvable.';
   }
 }
 
-// ════════════════════════
-// SEND / RECALL
-// ════════════════════════
+// ══════════════════════════════════════════════
+// SEND PAUSE
+// ══════════════════════════════════════════════
 async function sendPause() {
-  const mat = document.getElementById('input-matricule').value.trim();
+  const mat  = document.getElementById('input-matricule').value.trim();
   const note = document.getElementById('input-note').value.trim();
   if (!mat || pauseList.length >= MAX_PAUSE) return;
   const agent = agentsDB[mat];
   if (!agent) return;
 
-  const entry = {
-    id: Date.now(),
-    matricule: mat,
-    nom: agent.nom,
-    equipe: agent.equipe,
-    note,
-    startTime: Date.now()
-  };
+  const entry = { id: Date.now(), matricule: mat, nom: agent.nom, equipe: agent.equipe, note, startTime: Date.now() };
 
-  // Optimistic update : on ajoute localement immédiatement
+  // Optimistic update
   pauseList.push(entry);
-  sessionTotal++;
   document.getElementById('input-matricule').value = '';
   document.getElementById('input-note').value = '';
   document.getElementById('preview-agent').classList.remove('visible');
@@ -691,32 +710,48 @@ async function sendPause() {
   updateStats();
   notify('✓ ' + agent.nom + ' envoyé(e) en pause');
 
-  // Sync vers Sheets
   const ok = await pushPause(entry);
-  if (!ok) notify('⚠ Erreur de sync — réessai automatique dans 5s', 'warn');
+  if (!ok) notify('⚠ Erreur de sync — réessai dans 5s', 'warn');
 }
 
+// ══════════════════════════════════════════════
+// RECALL (RETOUR) — enregistre heure de retour + durée
+// ══════════════════════════════════════════════
 function recallAgent(id) {
-  const p = pauseList.find(x => x.id === id);
+  const p = pauseList.find(x => String(x.id) === String(id));
   if (!p) return;
-  openModal('RETIRER DE LA PAUSE', p.nom + ' sera retiré(e) de la liste de pause.', async () => {
-    // Optimistic update
-    pauseList = pauseList.filter(x => x.id !== id);
-    renderCapacity();
-    renderDashboard();
-    updateStats();
-    onMatriculeInput(document.getElementById('input-matricule').value);
-    notify('↩ ' + p.nom + ' retiré(e) de la pause', 'warn');
+  const now = Date.now();
+  const elapsed = Math.floor((now - p.startTime) / 1000);
 
-    // Sync vers Sheets
-    const ok = await removePause(id);
-    if (!ok) notify('⚠ Erreur de sync — réessai automatique dans 5s', 'warn');
-  });
+  openModal(
+    'CONFIRMER LE RETOUR',
+    p.nom + '\nDurée de pause : ' + fmt(elapsed) + '\n\nConfirmer le retour de cet agent ?',
+    async () => {
+      // Enregistrer dans l'historique de session
+      historyList.unshift({
+        ...p,
+        endTime: now,
+        duration: elapsed
+      });
+
+      // Retirer de la liste active
+      pauseList = pauseList.filter(x => String(x.id) !== String(id));
+      renderCapacity();
+      renderDashboard();
+      renderHistory();
+      updateStats();
+      onMatriculeInput(document.getElementById('input-matricule').value);
+      notify('↩ ' + p.nom + ' — retour confirmé (' + fmt(elapsed) + ')', 'warn');
+
+      const ok = await callRemovePause(id);
+      if (!ok) notify('⚠ Erreur de sync — réessai dans 5s', 'warn');
+    }
+  );
 }
 
-// ════════════════════════
+// ══════════════════════════════════════════════
 // RENDER
-// ════════════════════════
+// ══════════════════════════════════════════════
 function renderCapacity() {
   const bar = document.getElementById('capacity-bar');
   bar.innerHTML = '';
@@ -747,39 +782,66 @@ function renderDashboard() {
         <div class="agent-num">MATRICULE ${p.matricule}</div>
         <div class="agent-name">${p.nom}</div>
         <div class="agent-meta">${p.equipe}${p.note ? ' — ' + p.note : ''}</div>
+        <div class="agent-timestamps">Départ en pause : ${fmtDT(p.startTime)}</div>
       </div>
       <div class="agent-right">
         <div class="agent-timer">
           <div class="timer-label">Durée</div>
           <div class="timer-value ${cls}" id="timer-${p.id}">${fmt(elapsed)}</div>
-          <div class="agent-start">Début : ${fmtH(p.startTime)}</div>
         </div>
-        <button class="btn-recall" onclick="recallAgent(${p.id})">✓ RETOUR</button>
+        <button class="btn-recall" onclick="recallAgent('${p.id}')">✓ RETOUR</button>
       </div>
     </div>`;
   }).join('') + '</div>';
 }
 
+function renderHistory() {
+  const c = document.getElementById('history-list');
+  if (historyList.length === 0) {
+    c.innerHTML = '<div class="dash-empty"><div class="big">📋</div>Aucune pause terminée cette session</div>';
+    return;
+  }
+  c.innerHTML = '<div class="history-list">' + historyList.map(p => `
+    <div class="history-card">
+      <div class="history-left">
+        <div class="history-name">${p.nom} <span style="font-size:12px;font-weight:500;color:var(--text-dim)">— MAT. ${p.matricule}</span></div>
+        <div class="history-meta">${p.equipe}${p.note ? ' — ' + p.note : ''}</div>
+        <div class="history-times">
+          ▶ Départ : ${fmtDT(p.startTime)}&nbsp;&nbsp;&nbsp;◼ Retour : ${fmtDT(p.endTime)}
+        </div>
+      </div>
+      <div class="history-right">
+        <div class="history-label">Durée totale</div>
+        <div class="history-duration">${fmt(p.duration)}</div>
+      </div>
+    </div>`).join('') + '</div>';
+}
+
 function tick() {
   pauseList.forEach(p => {
-    const e = Math.floor((Date.now() - p.startTime) / 1000);
+    const e   = Math.floor((Date.now() - p.startTime) / 1000);
     const cls = e >= 900 ? 'overtime' : e >= 720 ? 'warning' : '';
-    const te = document.getElementById('timer-' + p.id);
-    const ce = document.getElementById('card-' + p.id);
+    const te  = document.getElementById('timer-' + p.id);
+    const ce  = document.getElementById('card-'  + p.id);
     if (te) { te.textContent = fmt(e); te.className = 'timer-value ' + cls; }
     if (ce) ce.className = 'agent-card ' + cls;
   });
 }
 
-function fmt(s) { return String(Math.floor(s/60)).padStart(2,'0') + ':' + String(s%60).padStart(2,'0'); }
-function fmtH(ts) { return new Date(ts).toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); }
+function fmt(s) {
+  return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
+}
+function fmtDT(ts) {
+  const d = new Date(ts);
+  return d.toLocaleDateString('fr-CA', { day: '2-digit', month: '2-digit' }) + ' ' +
+         d.toLocaleTimeString('fr-CA', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+}
 
-// ════════════════════════
-// ADMIN
-// ════════════════════════
+// ══════════════════════════════════════════════
+// ADMIN — USERS
+// ══════════════════════════════════════════════
 function renderUserList() {
-  const users = getUsers();
-  document.getElementById('user-list').innerHTML = users.map((u, i) => `
+  document.getElementById('user-list').innerHTML = getUsers().map((u, i) => `
     <div class="user-item">
       <div><strong>${u.username}</strong><div class="user-role">${u.role}</div></div>
       ${u.username !== 'admin'
@@ -816,25 +878,25 @@ function deleteUser(idx) {
 
 function updateStats() {
   document.getElementById('stat-count').textContent = pauseList.length;
-  document.getElementById('stat-total').textContent = sessionTotal;
+  document.getElementById('stat-total').textContent = historyList.length;
   document.getElementById('stat-agents').textContent = Object.keys(agentsDB).length;
 }
 
-// ════════════════════════
+// ══════════════════════════════════════════════
 // MODAL
-// ════════════════════════
+// ══════════════════════════════════════════════
 function openModal(title, body, cb) {
   document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-body').textContent = body;
+  document.getElementById('modal-body').innerHTML = body.replace(/\n/g, '<br>');
   modalCb = cb;
   document.getElementById('modal').classList.add('open');
   document.getElementById('modal-confirm').onclick = () => { closeModal(); if (modalCb) modalCb(); };
 }
 function closeModal() { document.getElementById('modal').classList.remove('open'); modalCb = null; }
 
-// ════════════════════════
+// ══════════════════════════════════════════════
 // NOTIFICATIONS
-// ════════════════════════
+// ══════════════════════════════════════════════
 function notify(msg, type = 'ok') {
   const el = document.createElement('div');
   el.className = 'notif ' + type;
