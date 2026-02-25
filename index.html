@@ -440,7 +440,7 @@
 // ══════════════════════════════════════════════
 // CONFIG — URL PARTAGÉE POUR TOUS LES UTILISATEURS
 // ══════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwqXXRQPZfhONfHgmk6vaWVS6_TKi5wyjYAvCoU3SrRo79NO7LspY9doDqtDxqn56sN/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbwpAouM8kODaeiWh1c4-3vK8RcU2TLEqUNb0-1cXIidHUCIZ1HeaWRqCgBk5t9f4iNd/exec';
 const MAX_PAUSE = 5;
 const POLL_MS   = 5000;
 
@@ -728,37 +728,52 @@ async function sendPause() {
 }
 
 // ══════════════════════════════════════════════
-// RECALL (RETOUR) — immédiat, sans modale
+// RECALL (RETOUR)
 // ══════════════════════════════════════════════
-async function recallAgent(id) {
+function recallAgent(id) {
   const sid = String(id);
   const p = pauseList.find(x => String(x.id) === sid);
   if (!p) { notify('Agent introuvable — liste déjà à jour', 'warn'); return; }
 
-  const now = Date.now();
-  const elapsed = Math.floor((now - p.startTime) / 1000);
+  const snapNow = Date.now();
+  const snapElapsed = Math.floor((snapNow - p.startTime) / 1000);
 
-  // 1. Retirer immédiatement côté client
-  pauseList = pauseList.filter(x => String(x.id) !== sid);
-  historyList.unshift({ ...p, endTime: now, duration: elapsed });
+  // Affiche modale de confirmation — le callback est async
+  document.getElementById('modal-title').textContent = 'CONFIRMER LE RETOUR';
+  document.getElementById('modal-body').innerHTML =
+    '<strong>' + p.nom + '</strong><br>Durée de pause : ' + fmt(snapElapsed) + '<br><br>Confirmer le retour ?';
+  document.getElementById('modal').classList.add('open');
 
-  // 2. Mettre à jour l'UI immédiatement
-  renderCapacity();
-  renderDashboard();
-  renderHistory();
-  updateStats();
-  onMatriculeInput(document.getElementById('input-matricule').value);
-  notify('↩ ' + p.nom + ' — retour confirmé (' + fmt(elapsed) + ')', 'warn');
+  // Lier le bouton CONFIRMER directement à l'action async
+  document.getElementById('modal-confirm').onclick = async function() {
+    // Fermer la modale EN PREMIER
+    document.getElementById('modal').classList.remove('open');
 
-  // 3. Couper le polling temporairement pour éviter que Sheets remette l'agent
-  clearInterval(pollInterval);
+    const now = Date.now();
+    const elapsed = Math.floor((now - p.startTime) / 1000);
 
-  // 4. Sync suppression vers Sheets
-  const ok = await callRemovePause(sid, fmtSheets(now));
-  if (!ok) notify('⚠ Erreur sync Sheets', 'err');
+    // Retirer de la liste active
+    pauseList = pauseList.filter(x => String(x.id) !== sid);
+    historyList.unshift({ ...p, endTime: now, duration: elapsed });
 
-  // 5. Relancer le polling
-  startPolling();
+    // Mettre à jour l'UI
+    renderCapacity();
+    renderDashboard();
+    renderHistory();
+    updateStats();
+    onMatriculeInput(document.getElementById('input-matricule').value);
+    notify('↩ ' + p.nom + ' — retour confirmé (' + fmt(elapsed) + ')', 'warn');
+
+    // Couper le polling le temps du sync
+    clearInterval(pollInterval);
+
+    // Sync vers Sheets
+    const ok = await callRemovePause(sid, fmtSheets(now));
+    if (!ok) notify('⚠ Erreur sync Sheets — vérifiez la connexion', 'err');
+
+    // Relancer le polling
+    startPolling();
+  };
 }
 
 // ══════════════════════════════════════════════
