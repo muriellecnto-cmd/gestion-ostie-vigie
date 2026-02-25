@@ -353,12 +353,15 @@
 // STATE
 // ════════════════════════
 const MAX_PAUSE = 5;
+const POLL_INTERVAL = 5000; // sync toutes les 5 secondes
 let currentUser = null;
 let agentsDB = {};
-let pauseList = [];
+let pauseList = [];   // source de vérité = Google Sheets
 let timerInterval = null;
+let pollInterval = null;
 let sessionTotal = 0;
 let modalCb = null;
+let isSyncing = false;
 
 // Agents de démo (remplacés quand Sheets est configuré)
 const DEMO = {
@@ -420,12 +423,12 @@ function doLogout() {
   pauseList = [];
   sessionTotal = 0;
   clearInterval(timerInterval);
+  clearInterval(pollInterval);
   document.getElementById('page-app').style.display = 'none';
   document.getElementById('page-login').style.display = 'flex';
   document.getElementById('login-user').value = '';
   document.getElementById('login-pass').value = '';
   document.getElementById('login-error').textContent = '';
-  // reset tabs
   document.getElementById('btn-admin-tab').classList.add('hidden');
   document.querySelectorAll('[data-tab="admin"]').forEach(el => el.classList.add('hidden'));
   switchTab('send');
@@ -437,7 +440,11 @@ function doLogout() {
 function initApp() {
   const url = getSheetsUrl();
   document.getElementById('sheets-url').value = url;
-  if (url) fetchAgents(url);
+  if (url) {
+    fetchAgents(url);
+    fetchPauses();  // charge les pauses existantes au démarrage
+    startPolling(); // sync en temps réel
+  }
   renderCapacity();
   renderDashboard();
   renderUserList();
@@ -456,7 +463,7 @@ function switchTab(name) {
 }
 
 // ════════════════════════
-// GOOGLE SHEETS
+// GOOGLE SHEETS — AGENTS
 // ════════════════════════
 async function fetchAgents(url) {
   try {
@@ -470,6 +477,103 @@ async function fetchAgents(url) {
     notify('✓ Base agents : ' + Object.keys(agentsDB).length + ' agents chargés', 'ok');
   } catch(e) {
     notify('Impossible de charger la base. Mode démo actif.', 'warn');
+  }
+}
+
+// ════════════════════════
+// GOOGLE SHEETS — PAUSES (SYNC TEMPS RÉEL)
+// ════════════════════════
+
+// Indicateur de sync dans le header
+function setSyncStatus(state) {
+  // state: 'ok' | 'syncing' | 'err'
+  let dot = document.getElementById('sync-dot');
+  if (!dot) {
+    dot = document.createElement('div');
+    dot.id = 'sync-dot';
+    dot.style.cssText = 'font-family:var(--font-mono);font-size:10px;letter-spacing:1px;padding:8px 12px;border:1px solid var(--border);color:var(--text-dim);transition:all 0.3s;';
+    document.querySelector('.header-right').prepend(dot);
+  }
+  const states = {
+    ok:      { text: '⬤ SYNC', color: 'var(--green)' },
+    syncing: { text: '⟳ SYNC', color: 'var(--warn)' },
+    err:     { text: '⬤ HORS LIGNE', color: 'var(--accent)' },
+  };
+  dot.textContent = states[state].text;
+  dot.style.color = states[state].color;
+  dot.style.borderColor = states[state].color;
+}
+
+// Récupère les pauses depuis Sheets et met à jour l'UI
+async function fetchPauses() {
+  const url = getSheetsUrl();
+  if (!url) return;
+  isSyncing = true;
+  setSyncStatus('syncing');
+  try {
+    const res = await fetch(url + '?action=getPauses&t=' + Date.now());
+    const data = await res.json();
+    // Merge : on garde les startTime locaux si l'id existe déjà (évite les sauts de chrono)
+    const newList = data.map(row => {
+      const existing = pauseList.find(p => String(p.id) === String(row.id));
+      return {
+        id: row.id,
+        matricule: row.matricule,
+        nom: row.nom,
+        equipe: row.equipe,
+        note: row.note || '',
+        startTime: existing ? existing.startTime : Number(row.startTime)
+      };
+    });
+    pauseList = newList;
+    renderCapacity();
+    renderDashboard();
+    updateStats();
+    setSyncStatus('ok');
+  } catch(e) {
+    setSyncStatus('err');
+  }
+  isSyncing = false;
+}
+
+function startPolling() {
+  clearInterval(pollInterval);
+  pollInterval = setInterval(fetchPauses, POLL_INTERVAL);
+}
+
+// Envoie une nouvelle pause vers Sheets
+async function pushPause(entry) {
+  const url = getSheetsUrl();
+  if (!url) return false;
+  setSyncStatus('syncing');
+  try {
+    await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'addPause', data: entry })
+    });
+    setSyncStatus('ok');
+    return true;
+  } catch(e) {
+    setSyncStatus('err');
+    return false;
+  }
+}
+
+// Retire une pause depuis Sheets
+async function removePause(id) {
+  const url = getSheetsUrl();
+  if (!url) return false;
+  setSyncStatus('syncing');
+  try {
+    await fetch(url, {
+      method: 'POST',
+      body: JSON.stringify({ action: 'removePause', id: String(id) })
+    });
+    setSyncStatus('ok');
+    return true;
+  } catch(e) {
+    setSyncStatus('err');
+    return false;
   }
 }
 
@@ -492,6 +596,8 @@ async function saveAndTestSheets() {
     el.className = 'status-msg ok';
     el.textContent = '✓ Connexion réussie — ' + n + ' agents chargés depuis Google Sheets';
     document.getElementById('stat-agents').textContent = n;
+    fetchPauses();
+    startPolling();
   } catch(e) {
     el.className = 'status-msg err';
     el.textContent = '✕ Erreur de connexion : ' + e.message;
@@ -540,38 +646,55 @@ function onMatriculeInput(val) {
 // ════════════════════════
 // SEND / RECALL
 // ════════════════════════
-function sendPause() {
+async function sendPause() {
   const mat = document.getElementById('input-matricule').value.trim();
   const note = document.getElementById('input-note').value.trim();
   if (!mat || pauseList.length >= MAX_PAUSE) return;
   const agent = agentsDB[mat];
   if (!agent) return;
 
-  pauseList.push({ id: Date.now(), matricule: mat, nom: agent.nom, equipe: agent.equipe, note, startTime: Date.now() });
-  sessionTotal++;
+  const entry = {
+    id: Date.now(),
+    matricule: mat,
+    nom: agent.nom,
+    equipe: agent.equipe,
+    note,
+    startTime: Date.now()
+  };
 
+  // Optimistic update : on ajoute localement immédiatement
+  pauseList.push(entry);
+  sessionTotal++;
   document.getElementById('input-matricule').value = '';
   document.getElementById('input-note').value = '';
   document.getElementById('preview-agent').classList.remove('visible');
   document.getElementById('btn-send').disabled = true;
   document.getElementById('send-warning').textContent = '';
-
   renderCapacity();
   renderDashboard();
   updateStats();
   notify('✓ ' + agent.nom + ' envoyé(e) en pause');
+
+  // Sync vers Sheets
+  const ok = await pushPause(entry);
+  if (!ok) notify('⚠ Erreur de sync — réessai automatique dans 5s', 'warn');
 }
 
 function recallAgent(id) {
   const p = pauseList.find(x => x.id === id);
   if (!p) return;
-  openModal('RETIRER DE LA PAUSE', p.nom + ' sera retiré(e) de la liste de pause.', () => {
+  openModal('RETIRER DE LA PAUSE', p.nom + ' sera retiré(e) de la liste de pause.', async () => {
+    // Optimistic update
     pauseList = pauseList.filter(x => x.id !== id);
     renderCapacity();
     renderDashboard();
     updateStats();
     onMatriculeInput(document.getElementById('input-matricule').value);
     notify('↩ ' + p.nom + ' retiré(e) de la pause', 'warn');
+
+    // Sync vers Sheets
+    const ok = await removePause(id);
+    if (!ok) notify('⚠ Erreur de sync — réessai automatique dans 5s', 'warn');
   });
 }
 
