@@ -7,324 +7,201 @@
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #12121a;
-    --surface: #1e1e2a;
+    --bg:       #12121a;
+    --surface:  #1e1e2a;
     --surface2: #26263a;
-    --border: #44445e;
-    --accent: #ff6030;
-    --accent2: #ff8c5a;
-    --warn: #ffd040;
-    --green: #3dffa0;
-    --blue: #7dd6ff;
-    --text: #ffffff;
+    --border:   #44445e;
+    --accent:   #ff6030;
+    --accent2:  #ff8c5a;
+    --warn:     #ffd040;
+    --green:    #3dffa0;
+    --blue:     #7dd6ff;
+    --text:     #ffffff;
     --text-dim: #c0c0e0;
     --text-dimmer: #7878a0;
     --font-display: 'Bebas Neue', sans-serif;
     --font: 'Poppins', sans-serif;
   }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: var(--font);
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
-
+  body { background: var(--bg); color: var(--text); font-family: var(--font); min-height: 100vh; overflow-x: hidden; }
   body::before {
-    content: '';
-    position: fixed; inset: 0;
-    background-image:
-      linear-gradient(rgba(255,69,0,0.025) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(255,69,0,0.025) 1px, transparent 1px);
-    background-size: 48px 48px;
-    pointer-events: none; z-index: 0;
+    content: ''; position: fixed; inset: 0;
+    background-image: linear-gradient(rgba(255,96,48,.025) 1px,transparent 1px), linear-gradient(90deg,rgba(255,96,48,.025) 1px,transparent 1px);
+    background-size: 48px 48px; pointer-events: none; z-index: 0;
   }
 
-  /* ══ LOGIN ══ */
-  #page-login {
-    position: fixed; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-    z-index: 100; background: var(--bg);
-  }
-  .login-box {
-    position: relative; width: 400px;
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 52px 44px; animation: fadeUp 0.5s ease;
-  }
-  .login-box::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
-    background: linear-gradient(90deg, var(--accent), var(--accent2), transparent);
-  }
-  .login-logo {
-    font-family: var(--font-display);
-    font-size: 48px; letter-spacing: 5px; color: var(--accent);
-    line-height: 1; margin-bottom: 4px;
-  }
-  .login-sub {
-    font-size: 11px; font-weight: 500; color: var(--text-dim);
-    letter-spacing: 3px; text-transform: uppercase; margin-bottom: 44px;
-  }
+  /* ── LOGIN ── */
+  #page-login { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; z-index: 100; background: var(--bg); }
+  .login-box { position: relative; width: 400px; background: var(--surface); border: 1px solid var(--border); padding: 52px 44px; animation: fadeUp .5s ease; }
+  .login-box::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg,var(--accent),var(--accent2),transparent); }
+  .login-logo { font-family: var(--font-display); font-size: 48px; letter-spacing: 5px; color: var(--accent); line-height: 1; margin-bottom: 4px; }
+  .login-sub { font-size: 11px; font-weight: 500; color: var(--text-dim); letter-spacing: 3px; text-transform: uppercase; margin-bottom: 44px; }
   .field-group { margin-bottom: 20px; }
-  .field-group label {
-    display: block; font-size: 10px; font-weight: 600;
-    letter-spacing: 2px; color: var(--text-dim); text-transform: uppercase; margin-bottom: 8px;
-  }
-  .field-group input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); font-family: var(--font); font-size: 15px; font-weight: 500;
-    padding: 13px 16px; outline: none; transition: border-color 0.2s;
-  }
+  .field-group label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--text); text-transform: uppercase; margin-bottom: 8px; }
+  .field-group input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font); font-size: 15px; font-weight: 500; padding: 13px 16px; outline: none; transition: border-color .2s; }
   .field-group input:focus { border-color: var(--accent); }
-  .btn-primary {
-    width: 100%; background: var(--accent); color: #fff; border: none;
-    font-family: var(--font-display); font-size: 22px; letter-spacing: 4px;
-    padding: 15px; cursor: pointer; transition: all 0.2s; margin-top: 8px;
-  }
+  .btn-primary { width: 100%; background: var(--accent); color: #fff; border: none; font-family: var(--font-display); font-size: 22px; letter-spacing: 4px; padding: 15px; cursor: pointer; transition: all .2s; margin-top: 8px; }
   .btn-primary:hover { background: var(--accent2); }
-  .btn-primary:active { transform: scale(0.98); }
+  .btn-primary:active { transform: scale(.98); }
   .login-error { font-size: 12px; font-weight: 500; color: var(--accent); margin-top: 14px; text-align: center; min-height: 18px; }
 
-  /* ══ APP ══ */
+  /* ── APP ── */
   #page-app { display: none; position: relative; z-index: 1; min-height: 100vh; }
-
-  .app-header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 32px; border-bottom: 1px solid var(--border);
-    background: var(--surface); position: sticky; top: 0; z-index: 50;
-  }
+  .app-header { display: flex; align-items: center; justify-content: space-between; padding: 18px 32px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 50; }
   .header-logo { font-family: var(--font-display); font-size: 30px; letter-spacing: 5px; color: var(--accent); line-height: 1; }
   .header-logo span { font-family: var(--font); font-size: 12px; font-weight: 600; color: var(--text-dim); letter-spacing: 2px; display: block; margin-top: 2px; }
   .header-right { display: flex; align-items: center; gap: 12px; }
-  .pause-counter {
-    font-size: 13px; font-weight: 600; color: var(--text-dim);
-    padding: 8px 16px; border: 1px solid var(--border);
-  }
+  .pause-counter { font-size: 13px; font-weight: 600; color: var(--text); padding: 8px 16px; border: 1px solid var(--border); }
   .pause-counter strong { color: var(--accent); font-size: 20px; font-weight: 800; }
-  .btn-icon {
-    background: none; border: 1px solid var(--border); color: var(--text-dim);
-    font-family: var(--font); font-size: 12px; font-weight: 600;
-    letter-spacing: 1px; padding: 8px 14px; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
-  }
+  .btn-icon { background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font); font-size: 12px; font-weight: 600; letter-spacing: 1px; padding: 8px 14px; cursor: pointer; transition: all .2s; text-transform: uppercase; }
   .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+  .sync-dot { font-size: 11px; font-weight: 700; letter-spacing: 1px; padding: 8px 12px; border: 1px solid; transition: all .3s; text-transform: uppercase; }
 
-  /* ══ TABS ══ */
+  /* ── TABS ── */
   .tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 32px; background: var(--surface); }
-  .tab {
-    font-family: var(--font); font-size: 13px; font-weight: 600;
-    letter-spacing: 1px; padding: 16px 24px; cursor: pointer;
-    border-bottom: 3px solid transparent; color: var(--text-dim); transition: all 0.2s; user-select: none;
-    text-transform: uppercase;
-  }
+  .tab { font-family: var(--font); font-size: 13px; font-weight: 600; letter-spacing: 1px; padding: 16px 24px; cursor: pointer; border-bottom: 3px solid transparent; color: var(--text-dim); transition: all .2s; user-select: none; text-transform: uppercase; }
   .tab.active { color: var(--text); border-bottom-color: var(--accent); }
   .tab:hover:not(.active) { color: var(--text); }
 
   .content { padding: 36px 32px; max-width: 960px; margin: 0 auto; }
   .tab-content { display: none; }
-  .tab-content.active { display: block; animation: fadeUp 0.3s ease; }
-
+  .tab-content.active { display: block; animation: fadeUp .3s ease; }
   .section-title { font-family: var(--font-display); font-size: 34px; letter-spacing: 4px; color: var(--text); margin-bottom: 4px; }
   .section-sub { font-size: 12px; font-weight: 600; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 32px; }
 
-  /* ══ CAPACITY ══ */
+  /* ── CAPACITY ── */
   .capacity-bar { display: flex; gap: 8px; margin-bottom: 28px; align-items: center; }
-  .cap-dot {
-    width: 38px; height: 38px; border: 2px solid var(--border);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 700; color: var(--text-dimmer); transition: all 0.3s;
-  }
-  .cap-dot.used { border-color: var(--accent); background: rgba(255,69,0,0.15); color: var(--accent); }
+  .cap-dot { width: 38px; height: 38px; border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--text-dimmer); transition: all .3s; }
+  .cap-dot.used { border-color: var(--accent); background: rgba(255,96,48,.15); color: var(--accent); }
   .cap-label { font-size: 13px; font-weight: 700; color: var(--text); margin-left: 10px; text-transform: uppercase; letter-spacing: 1px; }
 
-  /* ══ SEND FORM ══ */
+  /* ── SEND FORM ── */
   .send-card { background: var(--surface); border: 1px solid var(--border); padding: 36px; position: relative; }
-  .send-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--accent), transparent); }
+  .send-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,var(--accent),transparent); }
   .input-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
   .input-block label { display: block; font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--text); text-transform: uppercase; margin-bottom: 8px; }
-  .input-block input {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    color: var(--text); font-family: var(--font); font-size: 15px; font-weight: 500;
-    padding: 12px 16px; outline: none; transition: border-color 0.2s;
-  }
+  .input-block input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font); font-size: 15px; font-weight: 500; padding: 12px 16px; outline: none; transition: border-color .2s; }
   .input-block input:focus { border-color: var(--accent); }
-
-  .preview-agent {
-    background: var(--bg); border: 1px solid var(--border); border-left: 3px solid var(--green);
-    padding: 16px 20px; margin-bottom: 24px; display: none; animation: fadeUp 0.2s ease;
-  }
+  .input-block input::placeholder { color: var(--text-dimmer); font-style: italic; }
+  .preview-agent { background: var(--bg); border: 1px solid var(--border); border-left: 3px solid var(--green); padding: 16px 20px; margin-bottom: 24px; display: none; animation: fadeUp .2s ease; }
   .preview-agent.visible { display: block; }
   .preview-name { font-size: 19px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
-  .preview-info { font-size: 12px; font-weight: 500; color: var(--text-dim); letter-spacing: 0.5px; }
-
-  .btn-send {
-    width: 100%; background: var(--accent); color: #fff; border: none;
-    font-family: var(--font-display); font-size: 26px; letter-spacing: 5px;
-    padding: 18px; cursor: pointer; transition: all 0.2s;
-  }
+  .preview-info { font-size: 12px; font-weight: 500; color: var(--text-dim); }
+  .btn-send { width: 100%; background: var(--accent); color: #fff; border: none; font-family: var(--font-display); font-size: 26px; letter-spacing: 5px; padding: 18px; cursor: pointer; transition: all .2s; }
   .btn-send:hover:not(:disabled) { background: var(--accent2); }
   .btn-send:disabled { background: var(--text-dimmer); cursor: not-allowed; color: var(--text-dim); }
-  .btn-send:active:not(:disabled) { transform: scale(0.99); }
-  .send-warning { font-size: 12px; font-weight: 600; color: var(--warn); text-align: center; margin-top: 12px; min-height: 18px; letter-spacing: 0.5px; }
+  .send-warning { font-size: 12px; font-weight: 600; color: var(--warn); text-align: center; margin-top: 12px; min-height: 18px; }
 
-  /* ══ DASHBOARD ══ */
+  /* ── AGENT CARDS ── */
   .dash-empty { text-align: center; padding: 80px 0; color: var(--text-dimmer); font-size: 14px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
   .dash-empty .big { font-size: 72px; margin-bottom: 16px; }
   .agent-list { display: flex; flex-direction: column; gap: 12px; }
-
-  .agent-card {
-    background: var(--surface); border: 1px solid var(--border);
-    padding: 20px 24px; display: flex; align-items: center; justify-content: space-between;
-    position: relative; animation: slideIn 0.3s ease;
-  }
+  .agent-card { background: var(--surface); border: 1px solid var(--border); padding: 22px 26px; display: flex; align-items: center; justify-content: space-between; position: relative; animation: slideIn .3s ease; }
   .agent-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--green); }
   .agent-card.warning::before { background: var(--warn); }
   .agent-card.overtime::before { background: var(--accent); animation: pulse 1s infinite; }
-
-  .agent-left { display: flex; flex-direction: column; gap: 4px; flex: 1; }
-  .agent-num { font-size: 11px; font-weight: 700; color: var(--text-dim); letter-spacing: 2px; text-transform: uppercase; }
-  .agent-name { font-size: 20px; font-weight: 700; color: var(--text); }
-  .agent-meta { font-size: 12px; font-weight: 500; color: var(--text-dim); }
-  .agent-timestamps { font-size: 12px; font-weight: 500; color: var(--text-dim); margin-top: 4px; }
-  .agent-field { display: flex; align-items: baseline; gap: 8px; margin-bottom: 5px; line-height: 1.5; }
-  .agent-field-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; min-width: 130px; }
+  .agent-left { display: flex; flex-direction: column; gap: 6px; flex: 1; }
+  .agent-field { display: flex; align-items: baseline; gap: 10px; }
+  .agent-field-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; white-space: nowrap; min-width: 140px; }
   .agent-field-label::after { content: ' :'; }
   .agent-field-value { font-size: 14px; font-weight: 600; color: var(--text); }
-  .agent-name-val { font-size: 16px; font-weight: 800; color: #ffffff; }
+  .agent-name-val { font-size: 17px; font-weight: 800; color: #ffffff; }
   .agent-time-val { font-size: 13px; font-weight: 700; color: var(--blue); }
-
-  .agent-right { display: flex; align-items: center; gap: 20px; }
+  .agent-right { display: flex; align-items: center; gap: 20px; margin-left: 24px; }
   .agent-timer { text-align: right; }
   .timer-label { font-size: 11px; font-weight: 700; color: var(--text); letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px; }
-  .timer-value { font-family: var(--font-display); font-size: 36px; letter-spacing: 2px; color: var(--green); transition: color 0.3s; line-height: 1; }
+  .timer-value { font-family: var(--font-display); font-size: 40px; letter-spacing: 2px; color: var(--green); line-height: 1; transition: color .3s; }
   .timer-value.warning { color: var(--warn); }
   .timer-value.overtime { color: var(--accent); animation: pulse 1s infinite; }
-
-  .btn-recall {
-    background: var(--green); border: none; color: #000;
-    font-family: var(--font); font-size: 12px; font-weight: 800;
-    letter-spacing: 1px; padding: 10px 18px; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
-  }
+  .btn-recall { background: var(--green); border: none; color: #000; font-family: var(--font); font-size: 13px; font-weight: 800; letter-spacing: 1px; padding: 11px 20px; cursor: pointer; transition: all .2s; text-transform: uppercase; white-space: nowrap; }
   .btn-recall:hover { background: #00ff88; transform: scale(1.04); }
 
-  /* ══ HISTORIQUE ══ */
-  .history-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
-  .history-card {
-    background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid var(--blue);
-    padding: 14px 20px; display: flex; align-items: center; justify-content: space-between;
-    animation: fadeUp 0.3s ease;
-  }
-  .history-left { display: flex; flex-direction: column; gap: 3px; }
-  .history-name { font-size: 16px; font-weight: 700; color: var(--text); }
-  .history-meta { font-size: 11px; font-weight: 500; color: var(--text-dim); }
-  .history-times { font-size: 12px; font-weight: 500; color: var(--text-dim); }
-  .history-right { text-align: right; }
-  .history-duration { font-family: var(--font-display); font-size: 28px; color: var(--blue); letter-spacing: 2px; }
-  .history-label { font-size: 11px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  /* ── HISTORY ── */
+  .history-list { display: flex; flex-direction: column; gap: 10px; }
+  .history-card { background: var(--surface2); border: 1px solid var(--border); border-left: 4px solid var(--blue); padding: 18px 22px; display: flex; align-items: center; justify-content: space-between; animation: fadeUp .3s ease; }
+  .history-left { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  .history-times { font-size: 12px; font-weight: 600; color: var(--text-dim); margin-top: 6px; }
+  .history-times strong { color: var(--blue); }
+  .history-right { text-align: right; margin-left: 24px; }
+  .history-duration { font-family: var(--font-display); font-size: 32px; color: var(--blue); letter-spacing: 2px; }
+  .history-dur-label { font-size: 10px; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
 
-  /* ══ ADMIN ══ */
+  /* ── ADMIN ── */
   .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 32px; }
   .admin-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; position: relative; }
-  .admin-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, var(--warn), transparent); }
+  .admin-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,var(--warn),transparent); }
   .admin-card h3 { font-family: var(--font-display); font-size: 22px; letter-spacing: 3px; margin-bottom: 20px; }
   .user-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; max-height: 200px; overflow-y: auto; }
-  .user-item {
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--bg); padding: 10px 14px; border: 1px solid var(--border);
-    font-size: 13px; font-weight: 500; color: var(--text-dim);
-  }
+  .user-item { display: flex; align-items: center; justify-content: space-between; background: var(--bg); padding: 10px 14px; border: 1px solid var(--border); font-size: 13px; font-weight: 500; color: var(--text-dim); }
   .user-item strong { color: var(--text); font-weight: 700; }
   .user-role { font-size: 10px; font-weight: 600; color: var(--text-dimmer); letter-spacing: 1px; text-transform: uppercase; }
-  .btn-del { background: none; border: none; color: var(--text-dimmer); cursor: pointer; font-size: 18px; padding: 2px 6px; transition: color 0.2s; }
+  .btn-del { background: none; border: none; color: var(--text-dimmer); cursor: pointer; font-size: 18px; padding: 2px 6px; transition: color .2s; }
   .btn-del:hover { color: var(--accent); }
   .add-user-form { display: flex; flex-direction: column; gap: 10px; }
-  .add-user-form input {
-    background: var(--bg); border: 1px solid var(--border); color: var(--text);
-    font-family: var(--font); font-size: 14px; font-weight: 500;
-    padding: 10px 14px; outline: none; transition: border-color 0.2s;
-  }
+  .add-user-form input { background: var(--bg); border: 1px solid var(--border); color: var(--text); font-family: var(--font); font-size: 14px; font-weight: 500; padding: 10px 14px; outline: none; transition: border-color .2s; }
   .add-user-form input:focus { border-color: var(--warn); }
-  .btn-add {
-    background: none; border: 1px solid var(--warn); color: var(--warn);
-    font-family: var(--font); font-size: 14px; font-weight: 700;
-    letter-spacing: 1px; padding: 10px; cursor: pointer; transition: all 0.2s; text-transform: uppercase;
-  }
+  .btn-add { background: none; border: 1px solid var(--warn); color: var(--warn); font-family: var(--font); font-size: 14px; font-weight: 700; letter-spacing: 1px; padding: 10px; cursor: pointer; transition: all .2s; text-transform: uppercase; }
   .btn-add:hover { background: var(--warn); color: var(--bg); }
+  .sheets-info { background: var(--surface); border: 1px solid var(--border); padding: 20px 24px; margin-bottom: 24px; position: relative; }
+  .sheets-info::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg,var(--green),transparent); }
+  .sheets-info h3 { font-family: var(--font-display); font-size: 20px; letter-spacing: 3px; margin-bottom: 8px; }
+  .sheets-url-display { font-size: 11px; font-weight: 500; color: var(--green); word-break: break-all; margin-top: 8px; }
 
-  .sheets-card { background: var(--surface); border: 1px solid var(--border); padding: 28px; position: relative; margin-bottom: 24px; }
-  .sheets-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #4ade80, transparent); }
-  .sheets-card h3 { font-family: var(--font-display); font-size: 22px; letter-spacing: 3px; margin-bottom: 8px; }
-  .sheets-card p { font-size: 12px; font-weight: 500; color: var(--text-dim); line-height: 1.8; margin-bottom: 16px; }
-  .sheets-url-display {
-    background: var(--bg); border: 1px solid var(--border);
-    padding: 12px 16px; font-size: 12px; font-weight: 500; color: var(--green);
-    word-break: break-all; margin-bottom: 12px;
-  }
-  .status-msg { font-size: 12px; font-weight: 600; padding: 10px 14px; margin-top: 12px; letter-spacing: 0.5px; display: none; }
-  .status-msg.ok { background: rgba(0,230,118,0.08); border: 1px solid var(--green); color: var(--green); display: block; }
-  .status-msg.err { background: rgba(255,69,0,0.08); border: 1px solid var(--accent); color: var(--accent); display: block; }
-
-  /* ══ NOTIF ══ */
-  .notif {
-    position: fixed; bottom: 24px; right: 24px; background: var(--surface);
-    border: 1px solid var(--border); border-left: 4px solid var(--green);
-    padding: 16px 20px; font-size: 13px; font-weight: 600; color: var(--text);
-    z-index: 200; animation: fadeUp 0.3s ease; max-width: 320px;
-  }
-  .notif.err { border-left-color: var(--accent); }
+  /* ── NOTIF ── */
+  .notif { position: fixed; bottom: 24px; right: 24px; background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--green); padding: 16px 20px; font-size: 13px; font-weight: 600; color: var(--text); z-index: 200; animation: fadeUp .3s ease; max-width: 340px; }
+  .notif.err  { border-left-color: var(--accent); }
   .notif.warn { border-left-color: var(--warn); }
 
-  /* ══ MODAL ══ */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 150; display: none; align-items: center; justify-content: center; }
+  /* ── MODAL ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.88); z-index: 150; display: none; align-items: center; justify-content: center; }
   .modal-overlay.open { display: flex; }
-  .modal { background: #2a2a3e; border: 2px solid var(--border); padding: 40px; width: 460px; animation: fadeUp 0.3s ease; }
-  .modal h3 { font-family: var(--font-display); font-size: 28px; letter-spacing: 3px; margin-bottom: 12px; }
-  .modal p { font-size: 15px; font-weight: 500; color: var(--text); line-height: 1.9; margin-bottom: 28px; }
+  .modal { background: #2a2a3e; border: 2px solid var(--border); padding: 40px; width: 480px; animation: fadeUp .3s ease; }
+  .modal h3 { font-family: var(--font-display); font-size: 30px; letter-spacing: 3px; margin-bottom: 20px; color: #fff; }
+  .modal-body-content { margin-bottom: 28px; }
   .modal-btns { display: flex; gap: 12px; }
-  .btn-confirm { flex: 1; background: var(--green); border: none; color: #000; font-family: var(--font); font-size: 15px; font-weight: 800; letter-spacing: 1px; padding: 13px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+  .btn-confirm { flex: 1; background: var(--green); border: none; color: #000; font-family: var(--font); font-size: 15px; font-weight: 800; letter-spacing: 1px; padding: 13px; cursor: pointer; transition: all .2s; text-transform: uppercase; }
   .btn-confirm:hover { background: #00ff88; }
-  .btn-cancel { flex: 1; background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font); font-size: 15px; font-weight: 700; letter-spacing: 1px; padding: 13px; cursor: pointer; transition: all 0.2s; text-transform: uppercase; }
+  .btn-cancel { flex: 1; background: none; border: 1px solid var(--border); color: var(--text-dim); font-family: var(--font); font-size: 15px; font-weight: 700; letter-spacing: 1px; padding: 13px; cursor: pointer; transition: all .2s; text-transform: uppercase; }
   .btn-cancel:hover { border-color: var(--text); color: var(--text); }
 
   .hidden { display: none !important; }
-
-  @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeUp  { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
   @keyframes slideIn { from { opacity: 0; transform: translateX(-16px); } to { opacity: 1; transform: translateX(0); } }
-  @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+  @keyframes pulse   { 0%,100% { opacity: 1; } 50% { opacity: .45; } }
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border); }
-
   @media (max-width: 650px) {
     .admin-grid, .input-row { grid-template-columns: 1fr; }
     .content { padding: 20px 14px; }
     .app-header, .tabs { padding-left: 16px; padding-right: 16px; }
-    .agent-right { gap: 10px; }
-    .timer-value { font-size: 26px; }
+    .agent-right { gap: 10px; margin-left: 8px; }
+    .timer-value { font-size: 28px; }
+    .agent-field-label { min-width: 110px; }
   }
 </style>
 </head>
 <body>
 
-<!-- ══ LOGIN ══ -->
+<!-- LOGIN -->
 <div id="page-login">
   <div class="login-box">
     <div class="login-logo">PAUSE</div>
     <div class="login-sub">Gestionnaire OSTIE — Accès restreint</div>
     <div class="field-group">
       <label>Identifiant</label>
-      <input type="text" id="login-user" placeholder="admin" autocomplete="off">
+      <input type="text" id="login-user" placeholder="admin" autocomplete="username">
     </div>
     <div class="field-group">
       <label>Mot de passe</label>
-      <input type="password" id="login-pass" placeholder="••••••••">
+      <input type="password" id="login-pass" placeholder="••••••••" autocomplete="current-password">
     </div>
     <button class="btn-primary" onclick="doLogin()">CONNEXION</button>
     <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
-<!-- ══ APP ══ -->
+<!-- APP -->
 <div id="page-app">
   <header class="app-header">
     <div class="header-logo">
@@ -332,6 +209,7 @@
       <span>Système de suivi — sync en direct</span>
     </div>
     <div class="header-right">
+      <div class="sync-dot" id="sync-dot" style="color:var(--text-dimmer);border-color:var(--text-dimmer);">● SYNC</div>
       <div class="pause-counter">EN PAUSE : <strong id="hdr-count">0</strong> / 5</div>
       <button class="btn-icon hidden" id="btn-admin-tab" onclick="switchTab('admin')">⚙ ADMIN</button>
       <button class="btn-icon" onclick="doLogout()">⏻ DÉCO</button>
@@ -339,10 +217,10 @@
   </header>
 
   <div class="tabs">
-    <div class="tab active" onclick="switchTab('send')" data-tab="send">↑ ENVOYER EN PAUSE</div>
-    <div class="tab" onclick="switchTab('dash')" data-tab="dash">⏱ EN COURS</div>
-    <div class="tab" onclick="switchTab('history')" data-tab="history">📋 HISTORIQUE GLOBAL</div>
-    <div class="tab hidden" data-tab="admin" onclick="switchTab('admin')">⚙ ADMIN</div>
+    <div class="tab active" onclick="switchTab('send')"    data-tab="send">↑ ENVOYER EN PAUSE</div>
+    <div class="tab"        onclick="switchTab('dash')"    data-tab="dash">⏱ EN COURS</div>
+    <div class="tab"        onclick="switchTab('history')" data-tab="history">📋 HISTORIQUE GLOBAL</div>
+    <div class="tab hidden" onclick="switchTab('admin')"   data-tab="admin">⚙ ADMIN</div>
   </div>
 
   <div class="content">
@@ -356,12 +234,13 @@
         <div class="input-row">
           <div class="input-block">
             <label>Matricule</label>
-            <input type="text" id="input-matricule" placeholder="ex: CN00663" maxlength="10"
+            <input type="text" id="input-matricule" placeholder="ex: CN00663" maxlength="20"
               oninput="onMatriculeInput(this.value)" onkeydown="if(event.key==='Enter')sendPause()">
           </div>
           <div class="input-block">
             <label>Note (optionnel)</label>
-            <input type="text" id="input-note" placeholder="ex: Rendez-vous dentiste" maxlength="40">
+            <input type="text" id="input-note" placeholder="ex: Rendez-vous dentiste" maxlength="60"
+              onkeydown="if(event.key==='Enter')sendPause()">
           </div>
         </div>
         <div class="preview-agent" id="preview-agent">
@@ -378,7 +257,7 @@
     <!-- DASH -->
     <div class="tab-content" id="tab-dash">
       <div class="section-title">EN COURS</div>
-      <div class="section-sub">Agents actuellement en pause — mise à jour toutes les 5 s</div>
+      <div class="section-sub">Agents actuellement en pause — mis à jour toutes les 5 s</div>
       <div id="dash-list">
         <div class="dash-empty"><div class="big">☕</div>Aucun agent en pause</div>
       </div>
@@ -387,22 +266,21 @@
     <!-- HISTORY -->
     <div class="tab-content" id="tab-history">
       <div class="section-title">HISTORIQUE GLOBAL</div>
-      <div class="section-sub">Toutes les pauses terminées — partagé entre tous les utilisateurs</div>
+      <div class="section-sub">Toutes les pauses terminées — visible par tous</div>
       <div id="history-list">
-        <div class="dash-empty"><div class="big">📋</div>Aucune pause terminée</div>
+        <div class="dash-empty"><div class="big">📋</div>Aucune pause enregistrée</div>
       </div>
     </div>
 
     <!-- ADMIN -->
     <div class="tab-content hidden" id="tab-admin">
       <div class="section-title">ADMINISTRATION</div>
-      <div class="section-sub">Gestion des accès et statut de connexion</div>
+      <div class="section-sub">Gestion des accès</div>
 
-      <div class="sheets-card">
+      <div class="sheets-info">
         <h3>CONNEXION GOOGLE SHEETS</h3>
-        <p>URL Apps Script configurée et active pour tous les utilisateurs :</p>
-        <div class="sheets-url-display" id="sheets-url-display">—</div>
-        <div class="status-msg ok" id="sheets-status">✓ URL configurée automatiquement — sync actif</div>
+        <div style="font-size:13px;color:var(--text-dim);font-weight:500;">URL Apps Script active pour tous les utilisateurs :</div>
+        <div class="sheets-url-display" id="sheets-url-display"></div>
       </div>
 
       <div class="admin-grid">
@@ -410,18 +288,18 @@
           <h3>UTILISATEURS</h3>
           <div class="user-list" id="user-list"></div>
           <div class="add-user-form">
-            <input type="text" id="new-username" placeholder="Nom d'utilisateur" autocomplete="off">
-            <input type="password" id="new-password" placeholder="Mot de passe" autocomplete="off">
+            <input type="text"     id="new-username" placeholder="Nom d'utilisateur" autocomplete="off">
+            <input type="password" id="new-password" placeholder="Mot de passe"      autocomplete="off">
             <button class="btn-add" onclick="addUser()">+ AJOUTER</button>
           </div>
         </div>
         <div class="admin-card">
-          <h3>STATISTIQUES SESSION</h3>
-          <div style="font-size:13px;font-weight:500;color:var(--text-dim);line-height:2.6;">
-            <div>Connecté : <span id="stat-user" style="color:var(--text);font-weight:700;">—</span></div>
-            <div>En pause maintenant : <span id="stat-count" style="color:var(--accent);font-weight:800;">0</span> / 5</div>
-            <div>Pauses terminées : <span id="stat-total" style="color:var(--warn);font-weight:800;">0</span></div>
-            <div>Agents dans la base : <span id="stat-agents" style="color:var(--green);font-weight:800;">0</span></div>
+          <h3>STATISTIQUES</h3>
+          <div style="font-size:13px;font-weight:500;color:var(--text-dim);line-height:2.8;">
+            <div>Connecté : <span id="stat-user" style="color:#fff;font-weight:700;">—</span></div>
+            <div>En pause : <span id="stat-count" style="color:var(--accent);font-weight:800;">0</span> / 5</div>
+            <div>Historique total : <span id="stat-total" style="color:var(--warn);font-weight:800;">0</span></div>
+            <div>Agents base : <span id="stat-agents" style="color:var(--green);font-weight:800;">0</span></div>
           </div>
         </div>
       </div>
@@ -434,48 +312,90 @@
 <div class="modal-overlay" id="modal">
   <div class="modal">
     <h3 id="modal-title">CONFIRMATION</h3>
-    <p id="modal-body">Êtes-vous sûr ?</p>
+    <div class="modal-body-content" id="modal-body"></div>
     <div class="modal-btns">
       <button class="btn-confirm" id="modal-confirm">CONFIRMER</button>
-      <button class="btn-cancel" onclick="closeModal()">ANNULER</button>
+      <button class="btn-cancel"  id="modal-cancel">ANNULER</button>
     </div>
   </div>
 </div>
 
 <script>
-// ══════════════════════════════════════════════
-// CONFIG — URL PARTAGÉE POUR TOUS LES UTILISATEURS
-// ══════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyVjr4CKz-GrlpbwxAvD2VCI0b8SBHaAvHUaMv44i_qa2ZaXiTkyKXys9zam862M4tH/exec';
-const MAX_PAUSE = 5;
-const POLL_MS   = 5000;
+// ════════════════════════════════════════════════════════
+// CONFIG
+// ════════════════════════════════════════════════════════
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzk3F9sXhXw3ij2gytKTVMnmADbwuMePKycNkV4-ngTRG0E0HzR0DGgoresJRoqJzJR/exec';
+const MAX_PAUSE  = 5;
+const POLL_MS    = 5000;
+const SESSION_KEY = 'pause_session'; // clé pour persister la session
 
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // STATE
-// ══════════════════════════════════════════════
-let currentUser  = null;
-let agentsDB     = {};
-let pauseList    = [];
-let historyList  = [];
+// ════════════════════════════════════════════════════════
+let currentUser   = null;
+let agentsDB      = {};
+let pauseList     = [];
+let historyList   = [];
 let timerInterval = null;
 let pollInterval  = null;
-let modalCb       = null;
-let isRecalling   = false;
+let recalling     = new Set(); // IDs en cours de suppression — évite les ré-apparitions
 
-const DEMO = {
-  'CN00663': { nom: 'Marie Tremblay',        equipe: 'Service client' },
-  '10002': { nom: 'Jean-François Gagnon',  equipe: 'Support technique' },
-  '10003': { nom: 'Sophie Bouchard',       equipe: 'Ventes' },
-  '10004': { nom: 'Marc-André Côté',       equipe: 'Service client' },
-  '10005': { nom: 'Isabelle Roy',          equipe: 'Ressources humaines' },
-  '10006': { nom: 'Philippe Leblanc',      equipe: 'Support technique' },
-  '10007': { nom: 'Amélie Fortin',         equipe: 'Ventes' },
-  '10008': { nom: 'David Lavoie',          equipe: 'Service client' },
-};
+// ════════════════════════════════════════════════════════
+// UTILS DATES
+// ════════════════════════════════════════════════════════
+// Convertit "25/02/2026 15:26:25" → timestamp ms
+function sheetsToTs(str) {
+  if (!str) return null;
+  const m = str.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
+  if (!m) return null;
+  return new Date(+m[3], +m[2]-1, +m[1], +m[4], +m[5], +m[6]).getTime();
+}
 
-// ══════════════════════════════════════════════
-// STORAGE USERS & SESSION
-// ══════════════════════════════════════════════
+// Convertit timestamp ms → "25/02/2026 15:26:25"
+function tsToSheets(ts) {
+  const d = new Date(ts);
+  const p = n => String(n).padStart(2,'0');
+  return p(d.getDate())+'/'+p(d.getMonth()+1)+'/'+d.getFullYear()
+    +' '+p(d.getHours())+':'+p(d.getMinutes())+':'+p(d.getSeconds());
+}
+
+// Format affiché : "02-25 ⏰ 15 h 33 min 38 s"
+function fmtDT(input) {
+  let d;
+  if (!input) return '—';
+  if (typeof input === 'string' && input.includes('/')) {
+    const ts = sheetsToTs(input);
+    d = ts ? new Date(ts) : new Date();
+  } else {
+    d = new Date(Number(input));
+  }
+  const p = n => String(n).padStart(2,'0');
+  return p(d.getMonth()+1)+'-'+p(d.getDate())+' ⏰ '
+    +d.getHours()+' h '+p(d.getMinutes())+' min '+p(d.getSeconds())+' s';
+}
+
+// Format chrono mm:ss
+function fmt(s) {
+  return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+}
+
+// ════════════════════════════════════════════════════════
+// PERSISTANCE SESSION (survit au F5)
+// ════════════════════════════════════════════════════════
+function saveSession(user) {
+  // On ne sauvegarde pas le mot de passe dans sessionStorage
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ username: user.username, role: user.role }));
+}
+function loadSession() {
+  try { return JSON.parse(sessionStorage.getItem(SESSION_KEY)); } catch(e) { return null; }
+}
+function clearSession() {
+  sessionStorage.removeItem(SESSION_KEY);
+}
+
+// ════════════════════════════════════════════════════════
+// STORAGE USERS
+// ════════════════════════════════════════════════════════
 function getUsers() {
   const raw = localStorage.getItem('pause_users');
   if (!raw) {
@@ -487,52 +407,48 @@ function getUsers() {
 }
 function saveUsers(u) { localStorage.setItem('pause_users', JSON.stringify(u)); }
 
-function saveSession(user) {
-  localStorage.setItem('pause_session', JSON.stringify(user));
+// ════════════════════════════════════════════════════════
+// SYNC STATUS
+// ════════════════════════════════════════════════════════
+function setSyncStatus(state) {
+  const dot = document.getElementById('sync-dot');
+  if (!dot) return;
+  const s = {
+    ok:      ['⬤ SYNC',      '#3dffa0'],
+    syncing: ['⟳ SYNC...',  '#ffd040'],
+    err:     ['⬤ HORS LIGNE','#ff6030']
+  }[state] || ['● SYNC', '#7878a0'];
+  dot.textContent   = s[0];
+  dot.style.color   = s[1];
+  dot.style.borderColor = s[1];
 }
 
-function loadSession() {
-  const raw = localStorage.getItem('pause_session');
-  return raw ? JSON.parse(raw) : null;
-}
-
-function clearSession() {
-  localStorage.removeItem('pause_session');
-}
-
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // LOGIN / LOGOUT
-// ══════════════════════════════════════════════
-document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('login-user').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('login-pass').focus(); });
+// ════════════════════════════════════════════════════════
+document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key==='Enter') doLogin(); });
+document.getElementById('login-user').addEventListener('keydown', e => { if (e.key==='Enter') document.getElementById('login-pass').focus(); });
+document.getElementById('modal-cancel').addEventListener('click', closeModal);
 
 function doLogin() {
   const u = document.getElementById('login-user').value.trim();
   const p = document.getElementById('login-pass').value;
-  const found = getUsers().find(x => x.username === u && x.password === p);
+  const found = getUsers().find(x => x.username===u && x.password===p);
   if (!found) {
     document.getElementById('login-error').textContent = '✕ Identifiants incorrects';
     document.getElementById('login-pass').value = '';
     return;
   }
-  currentUser = found;
+  document.getElementById('login-error').textContent = '';
   saveSession(found);
-  document.getElementById('page-login').style.display = 'none';
-  document.getElementById('page-app').style.display = 'block';
-  if (found.role === 'admin') {
-    document.getElementById('btn-admin-tab').classList.remove('hidden');
-    document.querySelectorAll('[data-tab="admin"]').forEach(el => el.classList.remove('hidden'));
-    document.getElementById('tab-admin').classList.remove('hidden');
-  }
-  document.getElementById('stat-user').textContent = found.username;
-  document.getElementById('sheets-url-display').textContent = SHEETS_URL;
-  initApp();
+  bootApp(found);
 }
 
 function doLogout() {
-  currentUser = null;
   clearSession();
+  currentUser = null;
   pauseList = []; historyList = [];
+  recalling.clear();
   clearInterval(timerInterval);
   clearInterval(pollInterval);
   document.getElementById('page-app').style.display = 'none';
@@ -546,120 +462,101 @@ function doLogout() {
   switchTab('send');
 }
 
-// ══════════════════════════════════════════════
-// AUTO-LOGIN ON PAGE LOAD
-// ══════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
-  const session = loadSession();
-  if (session) {
-    const found = getUsers().find(x => x.username === session.username && x.password === session.password);
-    if (found) {
-      currentUser = found;
-      document.getElementById('page-login').style.display = 'none';
-      document.getElementById('page-app').style.display = 'block';
-      if (found.role === 'admin') {
-        document.getElementById('btn-admin-tab').classList.remove('hidden');
-        document.querySelectorAll('[data-tab="admin"]').forEach(el => el.classList.remove('hidden'));
-        document.getElementById('tab-admin').classList.remove('hidden');
-      }
-      document.getElementById('stat-user').textContent = found.username;
-      document.getElementById('sheets-url-display').textContent = SHEETS_URL;
-      initApp();
-    }
+function bootApp(user) {
+  currentUser = user;
+  document.getElementById('page-login').style.display = 'none';
+  document.getElementById('page-app').style.display   = 'block';
+  if (user.role === 'admin') {
+    document.getElementById('btn-admin-tab').classList.remove('hidden');
+    document.querySelectorAll('[data-tab="admin"]').forEach(el => el.classList.remove('hidden'));
+    document.getElementById('tab-admin').classList.remove('hidden');
   }
-});
+  document.getElementById('stat-user').textContent = user.username;
+  document.getElementById('sheets-url-display').textContent = SHEETS_URL;
+  initApp();
+}
 
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// AUTO-LOGIN AU CHARGEMENT (survit au F5)
+// ════════════════════════════════════════════════════════
+(function autoLogin() {
+  const saved = loadSession();
+  if (!saved) return;
+  // Au F5 on fait confiance à la session — on re-cherche juste pour avoir le rôle à jour
+  const found = getUsers().find(x => x.username === saved.username);
+  if (found) bootApp(found);
+  // Si l'utilisateur n'existe plus, on reste sur la page login
+})();
+
+// ════════════════════════════════════════════════════════
 // INIT
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 function initApp() {
-  Object.assign(agentsDB, DEMO);
+  recalling.clear();
   fetchAgents();
   fetchPauses();
   fetchHistory();
-  startPolling();
   renderCapacity();
   renderDashboard();
   renderHistory();
   renderUserList();
   clearInterval(timerInterval);
   timerInterval = setInterval(tick, 1000);
+  startPolling();
 }
 
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // TABS
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
-  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id === 'tab-' + name));
-  if (name === 'admin') { renderUserList(); updateStats(); }
-  if (name === 'history') { fetchHistory(); renderHistory(); }
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab===name));
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.toggle('active', c.id==='tab-'+name));
+  if (name==='admin')   { renderUserList(); updateStats(); }
+  if (name==='history') { fetchHistory(); }
 }
 
-// ══════════════════════════════════════════════
-// SYNC STATUS DOT
-// ══════════════════════════════════════════════
-function setSyncStatus(state) {
-  let dot = document.getElementById('sync-dot');
-  if (!dot) {
-    dot = document.createElement('div');
-    dot.id = 'sync-dot';
-    dot.style.cssText = 'font-size:11px;font-weight:700;letter-spacing:1px;padding:8px 12px;border:1px solid;transition:all 0.3s;text-transform:uppercase;';
-    document.querySelector('.header-right').prepend(dot);
-  }
-  const s = { ok: ['⬤ SYNC', 'var(--green)'], syncing: ['⟳ SYNC', 'var(--warn)'], err: ['⬤ HORS LIGNE', 'var(--accent)'] }[state];
-  dot.textContent = s[0];
-  dot.style.color = s[1];
-  dot.style.borderColor = s[1];
-}
-
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // SHEETS — AGENTS
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 async function fetchAgents() {
   try {
-    const res = await fetch(SHEETS_URL + '?action=getAgents&t=' + Date.now());
+    const res  = await fetch(SHEETS_URL+'?action=getAgents&t='+Date.now());
     const data = await res.json();
     if (Array.isArray(data) && data.length > 0) {
       agentsDB = {};
       data.forEach(r => {
-        if (r.matricule) agentsDB[String(r.matricule).trim()] = { nom: r.nom || '—', equipe: r.equipe || '—' };
+        if (r.matricule) agentsDB[String(r.matricule).trim()] = { nom: r.nom||'—', equipe: r.equipe||'—' };
       });
       document.getElementById('stat-agents').textContent = Object.keys(agentsDB).length;
-      notify('✓ ' + Object.keys(agentsDB).length + ' agents chargés', 'ok');
     }
-  } catch(e) {
-    notify('⚠ Base agents : mode démo actif', 'warn');
-  }
+  } catch(e) { /* silencieux */ }
 }
 
-// ══════════════════════════════════════════════
-// SHEETS — PAUSES
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// SHEETS — PAUSES EN COURS
+// ════════════════════════════════════════════════════════
 async function fetchPauses() {
-  if (isRecalling) return;
   setSyncStatus('syncing');
   try {
-    const res  = await fetch(SHEETS_URL + '?action=getPauses&t=' + Date.now());
+    const res  = await fetch(SHEETS_URL+'?action=getPauses&t='+Date.now());
     const data = await res.json();
-    if (!Array.isArray(data)) throw new Error('réponse invalide');
+    if (!Array.isArray(data)) throw new Error('bad response');
 
-    function sheetsDateToTs(str) {
-      if (!str) return Date.now();
-      const m = str.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
-      if (!m) return Date.now();
-      return new Date(m[3], m[2]-1, m[1], m[4], m[5], m[6]).getTime();
-    }
+    // NE PAS écraser les entrées en cours de suppression (recalling)
+    const filtered = data.filter(row => !recalling.has(String(row.id)));
 
-    pauseList = data.map(row => {
-      const existing = pauseList.find(p => String(p.id) === String(row.id));
+    pauseList = filtered.map(row => {
+      // Conserver le startTime en mémoire si déjà chargé — chrono stable
+      const existing = pauseList.find(p => String(p.id)===String(row.id));
+      const startTs  = existing ? existing.startTime : (sheetsToTs(row.startTime) || Date.now());
       return {
         id:        String(row.id),
         matricule: row.matricule,
         nom:       row.nom,
         equipe:    row.equipe,
-        note:      row.note || '',
-        startTime: existing ? existing.startTime : sheetsDateToTs(row.startTime)
+        note:      row.note||'',
+        startTime: startTs,           // timestamp ms stable
+        startRaw:  row.startTime      // string originale pour l'affichage
       };
     });
 
@@ -672,60 +569,59 @@ async function fetchPauses() {
   }
 }
 
-function startPolling() {
-  clearInterval(pollInterval);
-  pollInterval = setInterval(() => { fetchPauses(); fetchHistory(); }, POLL_MS);
-}
-
+// ════════════════════════════════════════════════════════
+// SHEETS — HISTORIQUE GLOBAL
+// ════════════════════════════════════════════════════════
 async function fetchHistory() {
   try {
-    const res  = await fetch(SHEETS_URL + '?action=getHistory&t=' + Date.now());
+    const res  = await fetch(SHEETS_URL+'?action=getHistory&t='+Date.now());
     const data = await res.json();
     if (!Array.isArray(data)) return;
 
-    function sheetsDateToTs(str) {
-      if (!str) return null;
-      const m = str.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
-      if (!m) return null;
-      return new Date(m[3], m[2]-1, m[1], m[4], m[5], m[6]).getTime();
-    }
-
     historyList = data.map(row => {
-      const startTs = sheetsDateToTs(row.startTime);
-      const endTs   = sheetsDateToTs(row.endTime);
-      const dur     = (startTs && endTs) ? Math.floor((endTs - startTs) / 1000) : null;
+      const startTs = sheetsToTs(row.startTime);
+      const endTs   = sheetsToTs(row.endTime);
+      const dur     = (startTs && endTs) ? Math.floor((endTs-startTs)/1000) : null;
       return {
         id:        String(row.id),
         matricule: row.matricule,
         nom:       row.nom,
         equipe:    row.equipe,
-        note:      row.note || '',
-        startTime: startTs || row.startTime,
-        endTime:   endTs   || row.endTime,
-        fin:       row.endTime,
+        note:      row.note||'',
+        startRaw:  row.startTime,
+        endRaw:    row.endTime,
         duration:  dur
       };
     });
 
     renderHistory();
     document.getElementById('stat-total').textContent = historyList.length;
-  } catch(e) {
-  }
+  } catch(e) { /* silencieux */ }
 }
 
+// ════════════════════════════════════════════════════════
+// POLLING
+// ════════════════════════════════════════════════════════
+function startPolling() {
+  clearInterval(pollInterval);
+  pollInterval = setInterval(fetchPauses, POLL_MS);
+}
+
+// ════════════════════════════════════════════════════════
+// SHEETS — ÉCRITURE
+// ════════════════════════════════════════════════════════
 async function pushPause(entry) {
   setSyncStatus('syncing');
   try {
     const p = new URLSearchParams({
-      action:    'addPause',
-      id:        String(entry.id),
+      action: 'addPause',
+      id:     String(entry.id),
       matricule: entry.matricule,
       nom:       entry.nom,
       equipe:    entry.equipe,
-      note:      entry.note || '',
-      startTime: String(entry.startTime)
+      note:      entry.note||''
     });
-    await fetch(SHEETS_URL + '?' + p.toString());
+    await fetch(SHEETS_URL+'?'+p.toString());
     setSyncStatus('ok');
     return true;
   } catch(e) { setSyncStatus('err'); return false; }
@@ -734,157 +630,176 @@ async function pushPause(entry) {
 async function callRemovePause(id, finStr) {
   setSyncStatus('syncing');
   try {
-    const p = new URLSearchParams({
-      action: 'removePause',
-      id:     String(id),
-      fin:    finStr || ''
-    });
-    await fetch(SHEETS_URL + '?' + p.toString());
+    const p = new URLSearchParams({ action: 'removePause', id: String(id), fin: finStr||'' });
+    await fetch(SHEETS_URL+'?'+p.toString());
     setSyncStatus('ok');
     return true;
   } catch(e) { setSyncStatus('err'); return false; }
 }
 
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // MATRICULE INPUT
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 function onMatriculeInput(val) {
-  const mat = val.trim();
+  const mat     = val.trim();
   const preview = document.getElementById('preview-agent');
   const btn     = document.getElementById('btn-send');
   const warn    = document.getElementById('send-warning');
 
-  if (!mat) { preview.classList.remove('visible'); btn.disabled = true; warn.textContent = ''; return; }
-  if (pauseList.find(p => String(p.matricule) === mat)) {
-    preview.classList.remove('visible'); btn.disabled = true;
-    warn.textContent = '⚠ Cet agent est déjà en pause.'; return;
+  if (!mat) { preview.classList.remove('visible'); btn.disabled=true; warn.textContent=''; return; }
+  if (pauseList.find(p => String(p.matricule)===mat)) {
+    preview.classList.remove('visible'); btn.disabled=true;
+    warn.textContent='⚠ Cet agent est déjà en pause.'; return;
   }
-  if (pauseList.length >= MAX_PAUSE) {
-    preview.classList.remove('visible'); btn.disabled = true;
-    warn.textContent = '⛔ Maximum 5 agents en pause atteint.'; return;
+  if (pauseList.length>=MAX_PAUSE) {
+    preview.classList.remove('visible'); btn.disabled=true;
+    warn.textContent='⛔ Maximum 5 agents en pause atteint.'; return;
   }
   const agent = agentsDB[mat];
   if (agent) {
     document.getElementById('preview-name').textContent = agent.nom;
-    document.getElementById('preview-info').textContent = 'Matricule : ' + mat + '  —  ' + agent.equipe;
+    document.getElementById('preview-info').textContent = 'Matricule : '+mat+' — '+agent.equipe;
     preview.classList.add('visible');
-    btn.disabled = false;
-    warn.textContent = '';
+    btn.disabled=false; warn.textContent='';
   } else {
-    preview.classList.remove('visible'); btn.disabled = true;
-    warn.textContent = '✕ Matricule introuvable.';
+    preview.classList.remove('visible'); btn.disabled=true;
+    warn.textContent = Object.keys(agentsDB).length===0
+      ? '⚠ Base non chargée. Vérifiez la connexion.'
+      : '✕ Matricule introuvable dans la base.';
   }
 }
 
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // SEND PAUSE
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 async function sendPause() {
   const mat  = document.getElementById('input-matricule').value.trim();
   const note = document.getElementById('input-note').value.trim();
-  if (!mat || pauseList.length >= MAX_PAUSE) return;
+  if (!mat || pauseList.length>=MAX_PAUSE) return;
   const agent = agentsDB[mat];
   if (!agent) return;
 
-  const entry = { id: Date.now(), matricule: mat, nom: agent.nom, equipe: agent.equipe, note, startTime: Date.now() };
+  const now   = Date.now();
+  const entry = { id: now, matricule: mat, nom: agent.nom, equipe: agent.equipe, note, startTime: now, startRaw: tsToSheets(now) };
 
   pauseList.push(entry);
   document.getElementById('input-matricule').value = '';
-  document.getElementById('input-note').value = '';
+  document.getElementById('input-note').value      = '';
   document.getElementById('preview-agent').classList.remove('visible');
-  document.getElementById('btn-send').disabled = true;
+  document.getElementById('btn-send').disabled     = true;
   document.getElementById('send-warning').textContent = '';
-  renderCapacity();
-  renderDashboard();
-  updateStats();
-  notify('✓ ' + agent.nom + ' envoyé(e) en pause');
+  renderCapacity(); renderDashboard(); updateStats();
+  notify('✓ '+agent.nom+' envoyé(e) en pause');
 
   const ok = await pushPause(entry);
-  if (!ok) notify('⚠ Erreur de sync — réessai dans 5s', 'warn');
+  if (!ok) notify('⚠ Erreur de sync Sheets', 'warn');
 }
 
-// ══════════════════════════════════════════════
-// RECALL (RETOUR)
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// RECALL — bouton RETOUR
+// ════════════════════════════════════════════════════════
 function recallAgent(id) {
   const sid = String(id);
-  const p = pauseList.find(x => String(x.id) === sid);
-  if (!p) { notify('Agent introuvable — liste déjà à jour', 'warn'); return; }
+  const p   = pauseList.find(x => String(x.id)===sid);
+  if (!p) { notify('Agent introuvable', 'warn'); return; }
 
-  const snapNow = Date.now();
+  const snapNow     = Date.now();
   const snapElapsed = Math.floor((snapNow - p.startTime) / 1000);
 
+  // ── Construire le contenu de la modale ──
+  const body = document.getElementById('modal-body');
+  body.innerHTML = `
+    <div style="margin-bottom:6px;">
+      <span style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Nom et prénom</span>
+      <div style="font-size:20px;font-weight:800;color:#fff;margin-top:2px;">${p.nom}</div>
+    </div>
+    <div style="margin-bottom:6px;">
+      <span style="font-size:11px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;">Matricule</span>
+      <div style="font-size:14px;font-weight:600;color:var(--text-dim);">${p.matricule} — ${p.equipe}</div>
+    </div>
+    <div style="margin:16px 0 8px;padding:14px 18px;background:rgba(61,255,160,.08);border:1px solid var(--green);border-radius:2px;">
+      <div style="font-size:11px;font-weight:700;color:var(--green);letter-spacing:2px;text-transform:uppercase;margin-bottom:4px;">⏱ Durée de pause</div>
+      <div style="font-family:'Bebas Neue',sans-serif;font-size:44px;color:var(--green);letter-spacing:3px;line-height:1;">${fmt(snapElapsed)}</div>
+      <div style="font-size:12px;color:var(--text-dim);margin-top:4px;">Départ : ${fmtDT(p.startRaw||p.startTime)}</div>
+    </div>
+    <div style="font-size:14px;font-weight:600;color:var(--warn);">Confirmer le retour de cet agent ?</div>`;
+
   document.getElementById('modal-title').textContent = 'CONFIRMER LE RETOUR';
-  document.getElementById('modal-body').innerHTML =
-    '<span style="font-size:18px;font-weight:700;color:#fff;display:block;margin-bottom:10px;">' + p.nom + '</span>' +
-    '<span style="color:#c0c0e0;font-size:13px;">Matricule : ' + p.matricule + ' — ' + p.equipe + '</span><br><br>' +
-    '<span style="font-size:20px;font-weight:800;color:#3dffa0;">⏱ ' + fmt(snapElapsed) + '</span><br>' +
-    '<span style="color:#c0c0e0;font-size:12px;">Départ : ' + fmtDT(p.startTime) + '</span><br><br>' +
-    '<span style="color:#ffd040;font-weight:600;">Confirmer le retour de cet agent ?</span>';
   document.getElementById('modal').classList.add('open');
 
-  document.getElementById('modal-confirm').onclick = async function() {
-    document.getElementById('modal').classList.remove('open');
+  // ── Bouton CONFIRMER — lié directement, une seule fois ──
+  const btn = document.getElementById('modal-confirm');
+  const newBtn = btn.cloneNode(true); // clone pour éviter les listeners cumulés
+  btn.parentNode.replaceChild(newBtn, btn);
 
-    isRecalling = true;
-    clearInterval(pollInterval);
+  newBtn.onclick = async function() {
+    closeModal();
 
-    const now = Date.now();
+    const now     = Date.now();
     const elapsed = Math.floor((now - p.startTime) / 1000);
+    const finStr  = tsToSheets(now);
 
-    pauseList = pauseList.filter(x => String(x.id) !== sid);
-    historyList.unshift({ ...p, endTime: now, duration: elapsed });
+    // Marquer comme "en cours de suppression" — bloque le polling
+    recalling.add(sid);
 
-    renderCapacity();
-    renderDashboard();
-    renderHistory();
-    updateStats();
+    // Retirer localement
+    pauseList = pauseList.filter(x => String(x.id)!==sid);
+    renderCapacity(); renderDashboard(); updateStats();
     onMatriculeInput(document.getElementById('input-matricule').value);
-    notify('↩ ' + p.nom + ' — retour confirmé (' + fmt(elapsed) + ')', 'warn');
+    notify('↩ '+p.nom+' — retour confirmé ('+fmt(elapsed)+')', 'warn');
 
-    const ok = await callRemovePause(sid, fmtSheets(now));
-    if (!ok) notify('⚠ Erreur sync Sheets — vérifiez la connexion', 'err');
+    // Sync Sheets
+    const ok = await callRemovePause(sid, finStr);
+    if (!ok) {
+      notify('⚠ Erreur sync Sheets', 'err');
+    }
 
-    isRecalling = false;
-    startPolling();
+    // Attendre 3s puis retirer de recalling et rafraîchir l'historique
+    setTimeout(() => {
+      recalling.delete(sid);
+      fetchHistory();
+    }, 3000);
   };
 }
 
-// ══════════════════════════════════════════════
-// RENDER
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
+// RENDER — CAPACITY
+// ════════════════════════════════════════════════════════
 function renderCapacity() {
   const bar = document.getElementById('capacity-bar');
   bar.innerHTML = '';
-  for (let i = 1; i <= MAX_PAUSE; i++) {
+  for (let i=1; i<=MAX_PAUSE; i++) {
     const d = document.createElement('div');
-    d.className = 'cap-dot' + (i <= pauseList.length ? ' used' : '');
+    d.className = 'cap-dot'+(i<=pauseList.length?' used':'');
     d.textContent = i;
     bar.appendChild(d);
   }
   const lbl = document.createElement('div');
-  lbl.className = 'cap-label';
-  lbl.textContent = pauseList.length + ' / 5 en pause';
+  lbl.className   = 'cap-label';
+  lbl.textContent = pauseList.length+' / 5 en pause';
   bar.appendChild(lbl);
   document.getElementById('hdr-count').textContent = pauseList.length;
 }
 
+// ════════════════════════════════════════════════════════
+// RENDER — DASHBOARD
+// ════════════════════════════════════════════════════════
 function renderDashboard() {
   const c = document.getElementById('dash-list');
-  if (pauseList.length === 0) {
+  if (pauseList.length===0) {
     c.innerHTML = '<div class="dash-empty"><div class="big">☕</div>Aucun agent en pause</div>';
     return;
   }
-  c.innerHTML = '<div class="agent-list">' + pauseList.map(p => {
-    const elapsed = Math.floor((Date.now() - p.startTime) / 1000);
-    const cls = elapsed >= 900 ? 'overtime' : elapsed >= 720 ? 'warning' : '';
+  c.innerHTML = '<div class="agent-list">'+pauseList.map(p => {
+    const elapsed = Math.floor((Date.now()-p.startTime)/1000);
+    const cls = elapsed>=900?'overtime':elapsed>=720?'warning':'';
     return `<div class="agent-card ${cls}" id="card-${p.id}">
       <div class="agent-left">
         <div class="agent-field"><span class="agent-field-label">Matricule</span><span class="agent-field-value">${p.matricule}</span></div>
         <div class="agent-field"><span class="agent-field-label">Nom et prénom</span><span class="agent-field-value agent-name-val">${p.nom}</span></div>
         <div class="agent-field"><span class="agent-field-label">Fonction</span><span class="agent-field-value">${p.equipe}</span></div>
-        <div class="agent-field"><span class="agent-field-label">Départ en pause</span><span class="agent-field-value agent-time-val">${fmtDT(p.startTime)}</span></div>
-        ${p.note ? `<div class="agent-field"><span class="agent-field-label">Note</span><span class="agent-field-value">${p.note}</span></div>` : ''}
+        <div class="agent-field"><span class="agent-field-label">Départ en pause</span><span class="agent-field-value agent-time-val">${fmtDT(p.startRaw||p.startTime)}</span></div>
+        ${p.note?`<div class="agent-field"><span class="agent-field-label">Note</span><span class="agent-field-value">${p.note}</span></div>`:''}
       </div>
       <div class="agent-right">
         <div class="agent-timer">
@@ -894,137 +809,111 @@ function renderDashboard() {
         <button class="btn-recall" onclick="recallAgent('${p.id}')">✓ RETOUR</button>
       </div>
     </div>`;
-  }).join('') + '</div>';
+  }).join('')+'</div>';
 }
 
+// ════════════════════════════════════════════════════════
+// RENDER — HISTORY
+// ════════════════════════════════════════════════════════
 function renderHistory() {
   const c = document.getElementById('history-list');
-  if (historyList.length === 0) {
+  if (historyList.length===0) {
     c.innerHTML = '<div class="dash-empty"><div class="big">📋</div>Aucune pause enregistrée</div>';
     return;
   }
-  c.innerHTML = '<div class="history-list">' + historyList.map(p => {
-    const dur = p.duration != null ? fmt(p.duration) : '—';
-    return `<div class="history-card">
+  c.innerHTML = '<div class="history-list">'+historyList.map(p => `
+    <div class="history-card">
       <div class="history-left">
         <div class="agent-field"><span class="agent-field-label">Matricule</span><span class="agent-field-value">${p.matricule}</span></div>
         <div class="agent-field"><span class="agent-field-label">Nom et prénom</span><span class="agent-field-value agent-name-val">${p.nom}</span></div>
         <div class="agent-field"><span class="agent-field-label">Fonction</span><span class="agent-field-value">${p.equipe}</span></div>
-        ${p.note ? `<div class="agent-field"><span class="agent-field-label">Note</span><span class="agent-field-value">${p.note}</span></div>` : ''}
+        ${p.note?`<div class="agent-field"><span class="agent-field-label">Note</span><span class="agent-field-value">${p.note}</span></div>`:''}
         <div class="history-times">
-          ▶ Départ : <strong>${fmtDT(p.startTime)}</strong>&nbsp;&nbsp;&nbsp;◼ Retour : <strong>${fmtDT(p.endTime || p.fin || '')}</strong>
+          ▶ Départ : <strong>${fmtDT(p.startRaw)}</strong>
+          &nbsp;&nbsp;◼ Retour : <strong>${fmtDT(p.endRaw)}</strong>
         </div>
       </div>
       <div class="history-right">
-        <div class="history-label">Durée totale</div>
-        <div class="history-duration">${dur}</div>
+        <div class="history-dur-label">Durée totale</div>
+        <div class="history-duration">${p.duration!=null?fmt(p.duration):'—'}</div>
       </div>
-    </div>`;
-  }).join('') + '</div>';
+    </div>`).join('')+'</div>';
 }
 
+// ════════════════════════════════════════════════════════
+// TICK — chrono toutes les secondes (ne touche pas au DOM sauf les timers)
+// ════════════════════════════════════════════════════════
 function tick() {
   pauseList.forEach(p => {
-    const e   = Math.floor((Date.now() - p.startTime) / 1000);
-    const cls = e >= 900 ? 'overtime' : e >= 720 ? 'warning' : '';
-    const te  = document.getElementById('timer-' + p.id);
-    const ce  = document.getElementById('card-'  + p.id);
-    if (te) { te.textContent = fmt(e); te.className = 'timer-value ' + cls; }
-    if (ce) ce.className = 'agent-card ' + cls;
+    const e   = Math.floor((Date.now()-p.startTime)/1000);
+    const cls = e>=900?'overtime':e>=720?'warning':'';
+    const te  = document.getElementById('timer-'+p.id);
+    const ce  = document.getElementById('card-' +p.id);
+    if (te) { te.textContent = fmt(e); te.className = 'timer-value '+cls; }
+    if (ce) ce.className = 'agent-card '+cls;
   });
 }
 
-function fmtSheets(ts) {
-  const d = new Date(ts);
-  const pad = n => String(n).padStart(2,'0');
-  return pad(d.getDate())+'/'+pad(d.getMonth()+1)+'/'+d.getFullYear()
-    +' '+pad(d.getHours())+':'+pad(d.getMinutes())+':'+pad(d.getSeconds());
-}
-
-function fmt(s) {
-  return String(Math.floor(s / 60)).padStart(2, '0') + ':' + String(s % 60).padStart(2, '0');
-}
-
-function fmtDT(ts) {
-  let d;
-  if (typeof ts === 'string' && ts.includes('/')) {
-    const m = ts.match(/(\d{2})\/(\d{2})\/(\d{4}) (\d{2}):(\d{2}):(\d{2})/);
-    d = m ? new Date(m[3], m[2]-1, m[1], m[4], m[5], m[6]) : new Date(ts);
-  } else {
-    d = new Date(Number(ts));
-  }
-  const pad = n => String(n).padStart(2,'0');
-  const mo  = pad(d.getMonth()+1);
-  const dy  = pad(d.getDate());
-  return mo + '-' + dy + ' ⏰ ' + d.getHours() + ' h ' + pad(d.getMinutes()) + ' min ' + pad(d.getSeconds()) + ' s';
-}
-
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // ADMIN — USERS
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 function renderUserList() {
-  document.getElementById('user-list').innerHTML = getUsers().map((u, i) => `
+  document.getElementById('user-list').innerHTML = getUsers().map((u,i) => `
     <div class="user-item">
       <div><strong>${u.username}</strong><div class="user-role">${u.role}</div></div>
-      ${u.username !== 'admin'
-        ? `<button class="btn-del" onclick="deleteUser(${i})">✕</button>`
-        : '<span style="font-size:10px;color:var(--text-dimmer)">PROTÉGÉ</span>'}
+      ${u.username!=='admin'
+        ?`<button class="btn-del" onclick="deleteUser(${i})">✕</button>`
+        :'<span style="font-size:10px;color:var(--text-dimmer)">PROTÉGÉ</span>'}
     </div>`).join('');
 }
 
 function addUser() {
   const un = document.getElementById('new-username').value.trim();
   const pw = document.getElementById('new-password').value;
-  if (!un || !pw) { notify('Remplissez tous les champs', 'err'); return; }
+  if (!un||!pw) { notify('Remplissez tous les champs','err'); return; }
   const users = getUsers();
-  if (users.find(u => u.username === un)) { notify('Utilisateur déjà existant', 'err'); return; }
+  if (users.find(u => u.username===un)) { notify('Utilisateur déjà existant','err'); return; }
   users.push({ username: un, password: pw, role: 'user' });
   saveUsers(users);
   document.getElementById('new-username').value = '';
   document.getElementById('new-password').value = '';
   renderUserList();
-  notify('✓ Utilisateur ' + un + ' ajouté');
+  notify('✓ Utilisateur '+un+' ajouté');
 }
 
 function deleteUser(idx) {
   const users = getUsers();
   const u = users[idx];
-  if (!u || u.username === 'admin') return;
-  openModal('SUPPRIMER ' + u.username.toUpperCase(), 'Cet utilisateur sera supprimé définitivement.', () => {
-    users.splice(idx, 1);
-    saveUsers(users);
-    renderUserList();
-    notify('Utilisateur supprimé', 'warn');
-  });
+  if (!u||u.username==='admin') return;
+  if (!confirm('Supprimer l\'utilisateur "'+u.username+'" ?')) return;
+  users.splice(idx,1);
+  saveUsers(users);
+  renderUserList();
+  notify('Utilisateur supprimé','warn');
 }
 
 function updateStats() {
-  document.getElementById('stat-count').textContent = pauseList.length;
-  document.getElementById('stat-total').textContent = historyList.length;
+  document.getElementById('stat-count').textContent  = pauseList.length;
+  document.getElementById('stat-total').textContent  = historyList.length;
   document.getElementById('stat-agents').textContent = Object.keys(agentsDB).length;
 }
 
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // MODAL
-// ══════════════════════════════════════════════
-function openModal(title, body, cb) {
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-body').innerHTML = body.replace(/\n/g, '<br>');
-  modalCb = cb;
-  document.getElementById('modal').classList.add('open');
-  document.getElementById('modal-confirm').onclick = () => { closeModal(); if (modalCb) modalCb(); };
+// ════════════════════════════════════════════════════════
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
 }
-function closeModal() { document.getElementById('modal').classList.remove('open'); modalCb = null; }
 
-// ══════════════════════════════════════════════
+// ════════════════════════════════════════════════════════
 // NOTIFICATIONS
-// ══════════════════════════════════════════════
-function notify(msg, type = 'ok') {
+// ════════════════════════════════════════════════════════
+function notify(msg, type='ok') {
   const el = document.createElement('div');
-  el.className = 'notif ' + type;
+  el.className   = 'notif '+type;
   el.textContent = msg;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3500);
+  setTimeout(() => el.remove(), 3800);
 }
 </script>
 </body>
