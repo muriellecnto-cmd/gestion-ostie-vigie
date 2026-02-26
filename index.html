@@ -413,7 +413,7 @@
 // ══════════════════════════════════════════════════════
 // CONFIG — URL PARTAGÉE, JAMAIS CHANGÉE
 // ══════════════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzFuCSOAi8vdQttgnYZt7gL55eDi04YxBV-fKLvL6iF9omVz_fh2rTD-ej3zNeIEQc_/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzjVL60T71zzT33lYHn0T8ZyRy0HbNcf1lCizwSnsZQaF1TxuUJA2hQc7Y4ziXm5B2P/exec';
 const MAX        = 5;
 const POLL_MS    = 5000;
 const SESSION_KEY = 'pause_session'; // clé localStorage pour maintenir la session
@@ -455,19 +455,34 @@ function getUsers() { return usersCache; }
 // ══════════════════════════════════════════════════════
 // SESSION PERSISTANTE (survit à l'actualisation)
 // ══════════════════════════════════════════════════════
+const SESSION_EXPIRY_MS = 2 * 60 * 60 * 1000; // 2 heures
+
 function loadSession() {
   try {
     const s = sessionStorage.getItem(SESSION_KEY);
-    if (s) { me = JSON.parse(s); return true; }
+    if (s) {
+      const data = JSON.parse(s);
+      if (Date.now() - data.loginAt > SESSION_EXPIRY_MS) {
+        sessionStorage.removeItem(SESSION_KEY);
+        return false;
+      }
+      me = data;
+      return true;
+    }
   } catch(e) {}
   return false;
 }
 function saveSession(user) {
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ...user, loginAt: Date.now() }));
 }
 function clearSession() {
   sessionStorage.removeItem(SESSION_KEY);
 }
+
+// Déconnexion automatique à la fermeture de l'onglet
+window.addEventListener('beforeunload', () => {
+  clearSession();
+});
 
 // ══════════════════════════════════════════════════════
 // LOGIN / LOGOUT
