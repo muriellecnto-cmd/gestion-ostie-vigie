@@ -584,18 +584,26 @@ async function fetchPauses() {
     if (!Array.isArray(data)) throw new Error();
 
     // Merge : préserve startTime local pour chrono stable
+    // DEBUG — afficher le format brut reçu de Sheets (supprimer après fix)
+    if (data.length > 0) {
+      const raw = data[0].startTime;
+      console.log('[DEBUG startTime brut]', typeof raw, JSON.stringify(raw));
+      toast('[DEBUG] startTime = ' + JSON.stringify(raw).substring(0,40), 'warn');
+    }
+
     pauseList = data
-      .filter(row => !removing.has(String(row.id))) // exclure ceux qu'on est en train de supprimer
+      .filter(row => !removing.has(String(row.id)))
       .map(row => {
-        const ex = pauseList.find(p => String(p.id) === String(row.id));
+        const ex  = pauseList.find(p => String(p.id) === String(row.id));
+        const ts  = ex ? ex.startTime : sheetsToTs(row.startTime);
+        console.log('[DEBUG] id='+row.id+' startTime='+row.startTime+' → ts='+ts);
         return {
           id:        String(row.id),
           matricule: row.matricule,
           nom:       row.nom,
           equipe:    row.equipe,
           note:      row.note || '',
-          // startTime : string Sheets "25/02/2026 15:26:25" ou timestamp ms local
-          startTime: ex ? ex.startTime : sheetsToTs(row.startTime)
+          startTime: ts
         };
       });
 
