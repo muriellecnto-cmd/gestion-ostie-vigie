@@ -397,7 +397,7 @@
 // ══════════════════════════════════════════════════════
 // CONFIG — URL PARTAGÉE, JAMAIS CHANGÉE
 // ══════════════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyNHl875ZSztSQMkHt9IbLbsSAGJu_489ESYuVNwY04HiWgEXahNhnO-VKiJz2E6vO7/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyg1N_EBl39mB5ix8eU1dPTAD5srBioy1i0VpREU20Q8jqfXdmze2y88uZ7r8LEhp5G/exec';
 const MAX        = 5;
 const POLL_MS    = 5000;
 const SESSION_KEY = 'pause_session'; // clé localStorage pour maintenir la session
@@ -462,18 +462,17 @@ document.getElementById('li-user').addEventListener('keydown', e => { if(e.key==
 async function doLogin() {
   const u   = document.getElementById('li-user').value.trim();
   const p   = document.getElementById('li-pass').value;
-  const btn = document.querySelector('.btn-primary');
+  const btn = document.querySelector('.btn-login');
   const err = document.getElementById('li-err');
 
-  err.textContent = '';
-  btn.textContent = 'CONNEXION...';
-  btn.disabled = true;
+  err.textContent  = '';
+  btn.textContent  = 'CONNEXION...';
+  btn.disabled     = true;
 
-  // Charger les users depuis Sheets à chaque tentative (toujours à jour)
   await loadUsers();
 
-  btn.textContent = 'CONNEXION';
-  btn.disabled = false;
+  btn.textContent  = 'CONNEXION';
+  btn.disabled     = false;
 
   const found = usersCache.find(x => x.u === u && x.p === p);
   if (!found) {
