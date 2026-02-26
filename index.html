@@ -3,8 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PAUSE OSTIE — Gestionnaire</title>
+<title>[CNTO] OSTIE</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='18' fill='%230f0f18'/><rect x='6' y='6' width='88' height='88' rx='14' fill='none' stroke='%23ff5533' stroke-width='5'/><text y='.9em' font-size='62' x='50' text-anchor='middle' dominant-baseline='hanging' fill='%23ff5533' font-family='Arial Black' font-weight='900'>C</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 <style>
   :root {
     --bg:      #0f0f18;
@@ -35,7 +37,7 @@
   #page-login {
     position: fixed; inset: 0; z-index: 200;
     display: flex; align-items: center; justify-content: center;
-    background: var(--bg);
+    background: radial-gradient(ellipse at 30% 40%, rgba(255,85,51,.08) 0%, transparent 60%), var(--bg);
   }
   .login-box {
     width: 400px; background: var(--surf); border: 1px solid var(--border);
@@ -45,9 +47,10 @@
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
     background: linear-gradient(90deg, var(--accent), var(--accent2));
   }
-  .login-logo { font-family: var(--mono); font-size: 52px; letter-spacing: 5px; color: var(--accent); }
-  .login-sub  { font-size: 11px; font-weight: 600; color: var(--dim); letter-spacing: 3px;
-                text-transform: uppercase; margin-bottom: 40px; }
+  .login-logo-wrap { display: flex; align-items: center; gap: 16px; margin-bottom: 32px; }
+  .login-logo { font-family: var(--mono); font-size: 38px; letter-spacing: 4px; color: var(--accent); line-height: 1; }
+  .login-sub  { font-size: 10px; font-weight: 600; color: var(--dim); letter-spacing: 2px;
+                text-transform: uppercase; margin-top: 4px; }
   .fld { margin-bottom: 18px; }
   .fld label { display: block; font-size: 10px; font-weight: 700; letter-spacing: 2px;
                color: var(--text); text-transform: uppercase; margin-bottom: 7px; }
@@ -56,9 +59,10 @@
                padding: 13px 16px; outline: none; transition: border-color .2s; }
   .fld input:focus { border-color: var(--accent); }
   .btn-login { width: 100%; background: var(--accent); color: #fff; border: none;
-               font-family: var(--mono); font-size: 24px; letter-spacing: 4px;
-               padding: 15px; cursor: pointer; margin-top: 8px; transition: all .2s; }
-  .btn-login:hover { background: var(--accent2); }
+               font-family: var(--mono); font-size: 22px; letter-spacing: 3px;
+               padding: 15px; cursor: pointer; margin-top: 8px; transition: all .2s;
+               box-shadow: 0 4px 20px rgba(255,85,51,.35); }
+  .btn-login:hover { background: var(--accent2); box-shadow: 0 6px 28px rgba(255,85,51,.5); transform: translateY(-1px); }
   .login-err { font-size: 13px; font-weight: 600; color: var(--accent); margin-top: 12px;
                text-align: center; min-height: 18px; }
 
@@ -71,9 +75,10 @@
     padding: 0 28px; height: 62px; display: flex; align-items: center;
     justify-content: space-between; position: sticky; top: 0; z-index: 50;
   }
-  .hdr-logo { font-family: var(--mono); font-size: 32px; letter-spacing: 5px; color: var(--accent); }
-  .hdr-logo small { font-family: var(--font); font-size: 11px; font-weight: 600;
-                    color: var(--dim); letter-spacing: 2px; display: block; margin-top: -4px; }
+  .hdr-logo { display: flex; align-items: center; gap: 12px; }
+  .hdr-title { font-family: var(--mono); font-size: 28px; letter-spacing: 4px; color: var(--accent); line-height: 1; }
+  .hdr-logo small { font-family: var(--font); font-size: 10px; font-weight: 600;
+                    color: var(--dim); letter-spacing: 1.5px; display: block; margin-top: 3px; }
   .hdr-right { display: flex; align-items: center; gap: 12px; }
   .badge { font-size: 13px; font-weight: 700; color: var(--text);
            padding: 7px 16px; border: 1px solid var(--border); }
@@ -146,7 +151,7 @@
                 padding: 20px 24px; display: flex; align-items: flex-start;
                 justify-content: space-between; position: relative; animation: slideIn .3s ease; }
   .agent-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0;
-                        width: 4px; background: var(--green); }
+                        width: 4px; background: var(--green); box-shadow: 2px 0 12px rgba(46,255,224,.4); }
   .agent-card.warn::before { background: var(--warn); }
   .agent-card.over::before { background: var(--accent); animation: pulse 1s infinite; }
   .ag-fields { display: flex; flex-direction: column; gap: 6px; flex: 1; }
@@ -173,7 +178,7 @@
   /* Empty state */
   .empty { text-align: center; padding: 80px 0; color: var(--dimmer);
            font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
-  .empty .ico { font-size: 64px; margin-bottom: 16px; }
+  .empty .ico { font-size: 54px; margin-bottom: 16px; color: var(--dimmer); }
 
   /* History cards */
   .hist-card { background: var(--surf); border: 1px solid var(--border);
@@ -263,17 +268,26 @@
 <!-- LOGIN -->
 <div id="page-login">
   <div class="login-box">
-    <div class="login-logo">PAUSE</div>
-    <div class="login-sub">Gestionnaire OSTIE — Accès restreint</div>
+    <div class="login-logo-wrap">
+      <svg width="52" height="52" viewBox="0 0 52 52" fill="none">
+        <rect width="52" height="52" rx="12" fill="#ff5533" opacity=".15"/>
+        <rect x="2" y="2" width="48" height="48" rx="10" fill="none" stroke="#ff5533" stroke-width="2"/>
+        <text x="26" y="36" text-anchor="middle" font-size="26" font-family="Arial Black" font-weight="900" fill="#ff5533">C</text>
+      </svg>
+      <div>
+        <div class="login-logo">[CNTO] OSTIE</div>
+        <div class="login-sub">Gestion des pauses — Accès restreint</div>
+      </div>
+    </div>
     <div class="fld">
-      <label>Identifiant</label>
+      <label><i class="fa-solid fa-user fa-xs"></i> &nbsp;Identifiant</label>
       <input type="text" id="li-user" placeholder="admin" autocomplete="off">
     </div>
     <div class="fld">
-      <label>Mot de passe</label>
+      <label><i class="fa-solid fa-lock fa-xs"></i> &nbsp;Mot de passe</label>
       <input type="password" id="li-pass" placeholder="••••••••">
     </div>
-    <button class="btn-login" onclick="doLogin()">CONNEXION</button>
+    <button class="btn-login" onclick="doLogin()"><i class="fa-solid fa-right-to-bracket"></i> &nbsp;CONNEXION</button>
     <div class="login-err" id="li-err"></div>
   </div>
 </div>
@@ -281,38 +295,48 @@
 <!-- APP -->
 <div id="app">
   <header class="hdr">
-    <div class="hdr-logo">PAUSE OSTIE <small>Sync en direct · Toutes les 5 s</small></div>
+    <div class="hdr-logo">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="flex-shrink:0">
+        <rect width="36" height="36" rx="8" fill="#ff5533" opacity=".15"/>
+        <rect x="1.5" y="1.5" width="33" height="33" rx="7" fill="none" stroke="#ff5533" stroke-width="1.5"/>
+        <text x="18" y="25" text-anchor="middle" font-size="18" font-family="Arial Black" font-weight="900" fill="#ff5533">C</text>
+      </svg>
+      <div>
+        <div class="hdr-title">[CNTO] OSTIE</div>
+        <small>Gestion des pauses · sync toutes les 5 s</small>
+      </div>
+    </div>
     <div class="hdr-right">
-      <div class="sync-dot" id="sync-dot">⬤ —</div>
-      <div class="badge">EN PAUSE : <strong id="hdr-n">0</strong> / 5</div>
-      <button class="btn-sm hidden" id="btn-admin-tab" onclick="goTab('admin')">⚙ ADMIN</button>
-      <button class="btn-sm" onclick="doLogout()">⏻ DÉCO</button>
+      <div class="sync-dot" id="sync-dot"><i class="fa-solid fa-circle fa-xs"></i> —</div>
+      <div class="badge"><i class="fa-solid fa-mug-hot fa-sm"></i> &nbsp;EN PAUSE : <strong id="hdr-n">0</strong><span style="opacity:.5"> / 5</span></div>
+      <button class="btn-sm hidden" id="btn-admin-tab" onclick="goTab('admin')"><i class="fa-solid fa-gear"></i> ADMIN</button>
+      <button class="btn-sm" onclick="doLogout()"><i class="fa-solid fa-power-off"></i> DÉCO</button>
     </div>
   </header>
 
   <div class="tabs">
-    <div class="tab active" data-tab="send"    onclick="goTab('send')">↑ ENVOYER EN PAUSE</div>
-    <div class="tab"        data-tab="encours" onclick="goTab('encours')">⏱ EN COURS</div>
-    <div class="tab"        data-tab="hist"    onclick="goTab('hist')">📋 HISTORIQUE GLOBAL</div>
-    <div class="tab hidden" data-tab="admin"   onclick="goTab('admin')">⚙ ADMIN</div>
+    <div class="tab active" data-tab="send"    onclick="goTab('send')"><i class="fa-solid fa-arrow-up-from-bracket fa-sm"></i> &nbsp;ENVOYER EN PAUSE</div>
+    <div class="tab"        data-tab="encours" onclick="goTab('encours')"><i class="fa-solid fa-stopwatch fa-sm"></i> &nbsp;EN COURS</div>
+    <div class="tab"        data-tab="hist"    onclick="goTab('hist')"><i class="fa-solid fa-clock-rotate-left fa-sm"></i> &nbsp;HISTORIQUE</div>
+    <div class="tab hidden" data-tab="admin"   onclick="goTab('admin')"><i class="fa-solid fa-gear fa-sm"></i> &nbsp;ADMIN</div>
   </div>
 
   <div class="content">
 
     <!-- SEND -->
     <div class="pane active" id="pane-send">
-      <div class="pg-title">ENVOYER EN PAUSE</div>
+      <div class="pg-title"><i class="fa-solid fa-arrow-up-from-bracket" style="color:var(--accent);font-size:28px;margin-right:12px;vertical-align:middle"></i>ENVOYER EN PAUSE</div>
       <div class="pg-sub">Matricule → nom automatique — max 5 simultanés</div>
       <div class="cap-row" id="cap-row"></div>
       <div class="send-card">
         <div class="grid2">
           <div class="fblock">
-            <label>Matricule</label>
+            <label><i class="fa-solid fa-id-card fa-xs"></i> &nbsp;Matricule</label>
             <input type="text" id="in-mat" placeholder="ex : CN00663" maxlength="20"
               oninput="onMat(this.value)" onkeydown="if(event.key==='Enter')sendPause()">
           </div>
           <div class="fblock">
-            <label>Note (optionnel)</label>
+            <label><i class="fa-solid fa-note-sticky fa-xs"></i> &nbsp;Note (optionnel)</label>
             <input type="text" id="in-note" placeholder="ex : Visite médicale" maxlength="50">
           </div>
         </div>
@@ -321,7 +345,7 @@
           <div class="prev-info" id="prev-info">—</div>
         </div>
         <button class="btn-send" id="btn-send" onclick="sendPause()" disabled>
-          ENVOYER EN PAUSE
+          <i class="fa-solid fa-arrow-up-from-bracket"></i> &nbsp;ENVOYER EN PAUSE
         </button>
         <div class="send-warn" id="send-warn"></div>
       </div>
@@ -329,36 +353,36 @@
 
     <!-- EN COURS -->
     <div class="pane" id="pane-encours">
-      <div class="pg-title">EN COURS</div>
+      <div class="pg-title"><i class="fa-solid fa-stopwatch" style="color:var(--green);font-size:28px;margin-right:12px;vertical-align:middle"></i>EN COURS</div>
       <div class="pg-sub">Agents actuellement en pause — chrono en temps réel</div>
       <div id="list-encours">
-        <div class="empty"><div class="ico">☕</div>Aucun agent en pause</div>
+        <div class="empty"><div class="ico"><i class="fa-solid fa-mug-hot"></i></div>Aucun agent en pause</div>
       </div>
     </div>
 
     <!-- HISTORIQUE -->
     <div class="pane" id="pane-hist">
-      <div class="pg-title">HISTORIQUE GLOBAL</div>
+      <div class="pg-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--blue);font-size:28px;margin-right:12px;vertical-align:middle"></i>HISTORIQUE GLOBAL</div>
       <div class="pg-sub">Toutes les pauses terminées — visible par tous</div>
       <div id="list-hist">
-        <div class="empty"><div class="ico">📋</div>Aucune pause enregistrée</div>
+        <div class="empty"><div class="ico"><i class="fa-solid fa-clock-rotate-left"></i></div>Aucune pause enregistrée</div>
       </div>
     </div>
 
     <!-- ADMIN -->
     <div class="pane hidden" id="pane-admin">
-      <div class="pg-title">ADMINISTRATION</div>
+      <div class="pg-title"><i class="fa-solid fa-gear" style="color:var(--warn);font-size:28px;margin-right:12px;vertical-align:middle"></i>ADMINISTRATION</div>
       <div class="pg-sub">Gestion des accès et configuration</div>
 
       <div class="admin-card">
-        <h3>CONNEXION GOOGLE SHEETS</h3>
+        <h3><i class="fa-brands fa-google fa-sm" style="color:var(--warn)"></i> &nbsp;CONNEXION GOOGLE SHEETS</h3>
         <p style="font-size:12px;font-weight:500;color:var(--dim);margin-bottom:12px;">URL Apps Script active pour tous les utilisateurs :</p>
         <div class="url-box" id="url-box">—</div>
         <div style="margin-top:10px;font-size:12px;font-weight:700;color:var(--green);" id="url-status">✓ Connexion configurée automatiquement</div>
       </div>
 
       <div class="admin-card">
-        <h3>UTILISATEURS</h3>
+        <h3><i class="fa-solid fa-users fa-sm" style="color:var(--warn)"></i> &nbsp;UTILISATEURS</h3>
         <div id="user-list"></div>
         <div class="admin-form">
           <input type="text"     id="nu-user" placeholder="Nom d'utilisateur" autocomplete="off">
@@ -368,7 +392,7 @@
       </div>
 
       <div class="admin-card">
-        <h3>STATISTIQUES SESSION</h3>
+        <h3><i class="fa-solid fa-chart-bar fa-sm" style="color:var(--warn)"></i> &nbsp;STATISTIQUES</h3>
         <div style="font-size:13px;font-weight:600;color:var(--dim);line-height:2.8;">
           <div>Connecté : <span id="s-user" style="color:#fff;font-weight:800;">—</span></div>
           <div>En pause maintenant : <span id="s-count" style="color:var(--accent);font-weight:800;">0</span> / 5</div>
@@ -584,13 +608,6 @@ async function fetchPauses() {
     if (!Array.isArray(data)) throw new Error();
 
     // Merge : préserve startTime local pour chrono stable
-    // DEBUG — afficher le format brut reçu de Sheets (supprimer après fix)
-    if (data.length > 0) {
-      const raw = data[0].startTime;
-      console.log('[DEBUG startTime brut]', typeof raw, JSON.stringify(raw));
-      toast('[DEBUG] startTime = ' + JSON.stringify(raw).substring(0,40), 'warn');
-    }
-
     pauseList = data
       .filter(row => !removing.has(String(row.id)))
       .map(row => {
@@ -827,7 +844,7 @@ function renderCap() {
 function renderEncours() {
   const c = document.getElementById('list-encours');
   if (!pauseList.length) {
-    c.innerHTML = '<div class="empty"><div class="ico">☕</div>Aucun agent en pause</div>';
+    c.innerHTML = '<div class="empty"><div class="ico"><i class="fa-solid fa-mug-hot"></i></div>Aucun agent en pause</div>';
     return;
   }
   c.innerHTML = '<div class="agent-list">' + pauseList.map(p => {
@@ -840,7 +857,7 @@ function renderEncours() {
         <div class="ag-row"><span class="ag-lbl">Nom et prénom</span><span class="ag-val big">${p.nom}</span></div>
         <div class="ag-row"><span class="ag-lbl">Fonction</span><span class="ag-val">${p.equipe}</span></div>
         ${p.note ? `<div class="ag-row"><span class="ag-lbl">Note</span><span class="ag-val">${p.note}</span></div>` : ''}
-        <div class="ag-row"><span class="ag-lbl">Départ en pause</span><span class="ag-val time">${fmtDT(p.startTime)}</span></div>
+        <div class="ag-row"><span class="ag-lbl"><i class='fa-regular fa-clock fa-xs'></i>&nbsp; Départ en pause</span><span class="ag-val time">${fmtDT(p.startTime)}</span></div>
       </div>
       <div class="ag-right">
         <div>
@@ -859,7 +876,7 @@ function renderEncours() {
 function renderHist() {
   const c = document.getElementById('list-hist');
   if (!histList.length) {
-    c.innerHTML = '<div class="empty"><div class="ico">📋</div>Aucune pause enregistrée</div>';
+    c.innerHTML = '<div class="empty"><div class="ico"><i class="fa-solid fa-clock-rotate-left"></i></div>Aucune pause enregistrée</div>';
     return;
   }
   c.innerHTML = histList.map(p => {
@@ -871,8 +888,8 @@ function renderHist() {
         <div class="ag-row"><span class="ag-lbl">Fonction</span><span class="ag-val">${p.equipe}</span></div>
         ${p.note ? `<div class="ag-row"><span class="ag-lbl">Note</span><span class="ag-val">${p.note}</span></div>` : ''}
         <div class="hist-times">
-          ▶ Départ : <strong>${fmtDT(p.startTime)}</strong><br>
-          ◼ Retour : <strong>${fmtDT(p.endTime)}</strong>
+          <i class="fa-solid fa-play fa-xs" style="color:var(--green)"></i> Départ : <strong>${fmtDT(p.startTime)}</strong><br>
+          <i class="fa-solid fa-stop fa-xs" style="color:var(--accent)"></i> Retour : <strong>${fmtDT(p.endTime)}</strong>
         </div>
       </div>
       <div class="hist-right">
