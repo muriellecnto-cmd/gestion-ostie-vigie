@@ -397,7 +397,7 @@
 // ══════════════════════════════════════════════════════
 // CONFIG — URL PARTAGÉE, JAMAIS CHANGÉE
 // ══════════════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzk3F9sXhXw3ij2gytKTVMnmADbwuMePKycNkV4-ngTRG0E0HzR0DGgoresJRoqJzJR/exec';
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbyNHl875ZSztSQMkHt9IbLbsSAGJu_489ESYuVNwY04HiWgEXahNhnO-VKiJz2E6vO7/exec';
 const MAX        = 5;
 const POLL_MS    = 5000;
 const SESSION_KEY = 'pause_session'; // clé localStorage pour maintenir la session
@@ -416,16 +416,25 @@ let removing   = new Set(); // IDs en cours de suppression (évite les doublons)
 // ══════════════════════════════════════════════════════
 // STORAGE USERS
 // ══════════════════════════════════════════════════════
-function getUsers() {
-  const r = localStorage.getItem('pause_users');
-  if (!r) {
-    const d = [{ u: 'admin', p: 'admin', role: 'admin' }];
-    localStorage.setItem('pause_users', JSON.stringify(d));
-    return d;
+// ── Cache users chargés depuis Sheets ──
+let usersCache = [];
+
+async function loadUsers() {
+  try {
+    const res  = await fetch(SHEETS_URL + '?action=getUsers&t=' + Date.now());
+    const data = await res.json();
+    if (Array.isArray(data) && data.length > 0) {
+      usersCache = data; // [{u, p, role}]
+    } else {
+      // Fallback si onglet User vide ou absent
+      usersCache = [{ u: 'admin', p: 'admin', role: 'admin' }];
+    }
+  } catch(e) {
+    usersCache = [{ u: 'admin', p: 'admin', role: 'admin' }];
   }
-  return JSON.parse(r);
 }
-function saveUsers(arr) { localStorage.setItem('pause_users', JSON.stringify(arr)); }
+
+function getUsers() { return usersCache; }
 
 // ══════════════════════════════════════════════════════
 // SESSION PERSISTANTE (survit à l'actualisation)
@@ -450,12 +459,25 @@ function clearSession() {
 document.getElementById('li-pass').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
 document.getElementById('li-user').addEventListener('keydown', e => { if(e.key==='Enter') document.getElementById('li-pass').focus(); });
 
-function doLogin() {
-  const u = document.getElementById('li-user').value.trim();
-  const p = document.getElementById('li-pass').value;
-  const found = getUsers().find(x => x.u === u && x.p === p);
+async function doLogin() {
+  const u   = document.getElementById('li-user').value.trim();
+  const p   = document.getElementById('li-pass').value;
+  const btn = document.querySelector('.btn-primary');
+  const err = document.getElementById('li-err');
+
+  err.textContent = '';
+  btn.textContent = 'CONNEXION...';
+  btn.disabled = true;
+
+  // Charger les users depuis Sheets à chaque tentative (toujours à jour)
+  await loadUsers();
+
+  btn.textContent = 'CONNEXION';
+  btn.disabled = false;
+
+  const found = usersCache.find(x => x.u === u && x.p === p);
   if (!found) {
-    document.getElementById('li-err').textContent = '✕ Identifiants incorrects';
+    err.textContent = '✕ Identifiants incorrects';
     document.getElementById('li-pass').value = '';
     return;
   }
@@ -506,7 +528,8 @@ function bootApp() {
 // ══════════════════════════════════════════════════════
 // AUTO-LOGIN si session active (F5)
 // ══════════════════════════════════════════════════════
-window.addEventListener('DOMContentLoaded', () => {
+window.addEventListener('DOMContentLoaded', async () => {
+  await loadUsers(); // charger les users Sheets avant tout
   if (loadSession()) {
     bootApp();
   }
