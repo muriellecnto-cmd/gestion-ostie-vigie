@@ -112,12 +112,12 @@
                text-transform: uppercase; margin-bottom: 28px; }
 
   /* Capacity dots */
-  .cap-row { display: flex; gap: 8px; align-items: center; margin-bottom: 24px; }
-  .cap-dot { width: 38px; height: 38px; border: 2px solid var(--border);
+  .cap-row { display: flex; gap: 6px; align-items: center; margin-bottom: 24px; flex-wrap: wrap; }
+  .cap-dot { width: 32px; height: 32px; border: 2px solid var(--border);
              display: flex; align-items: center; justify-content: center;
-             font-size: 15px; font-weight: 800; color: var(--dimmer); transition: all .3s; }
+             font-size: 13px; font-weight: 800; color: var(--dimmer); transition: all .3s; }
   .cap-dot.on { border-color: var(--accent); background: rgba(26,86,196,.15); color: var(--accent); }
-  .cap-lbl { font-size: 13px; font-weight: 700; color: var(--text); margin-left: 10px;
+  .cap-lbl { font-size: 13px; font-weight: 700; color: var(--text); margin-left: 8px;
              text-transform: uppercase; letter-spacing: 1px; }
 
   /* Send form */
@@ -246,6 +246,18 @@
              font-family: var(--font); font-size: 15px; font-weight: 700;
              letter-spacing: 1px; padding: 13px; cursor: pointer; text-transform: uppercase; }
   .btn-no:hover { border-color: #fff; color: #fff; }
+
+  /* Repos médical toggle */
+  .repos-section { margin: 16px 0 4px; }
+  .repos-label { font-size: 11px; font-weight: 700; letter-spacing: 2px; color: var(--dim);
+                 text-transform: uppercase; margin-bottom: 8px; }
+  .repos-row { display: flex; gap: 10px; }
+  .repos-btn { flex: 1; padding: 11px; border: 2px solid var(--border); background: none;
+               font-family: var(--font); font-size: 14px; font-weight: 800; letter-spacing: 1px;
+               color: var(--dim); cursor: pointer; text-transform: uppercase; transition: all .2s; }
+  .repos-btn:hover { border-color: var(--text); color: var(--text); }
+  .repos-btn.sel-oui { border-color: var(--green); background: rgba(0,230,118,.1); color: var(--green); }
+  .repos-btn.sel-non { border-color: var(--warn);  background: rgba(255,170,0,.08); color: var(--warn); }
 
   .hidden { display: none !important; }
 
@@ -397,11 +409,17 @@
   </div>
 </div>
 
-<!-- MODAL -->
 <div class="modal-bg" id="modal">
   <div class="modal">
     <div class="modal-ttl" id="modal-ttl">CONFIRMATION</div>
     <div class="modal-body" id="modal-body">—</div>
+    <div class="repos-section" id="repos-section" style="display:none;">
+      <div class="repos-label"><i class="fa-solid fa-kit-medical fa-xs"></i> &nbsp;Repos médical ?</div>
+      <div class="repos-row">
+        <button class="repos-btn" id="repos-oui" onclick="selectRepos('oui')">✓ OUI</button>
+        <button class="repos-btn" id="repos-non" onclick="selectRepos('non')">✗ NON</button>
+      </div>
+    </div>
     <div class="modal-btns">
       <button class="btn-ok" id="modal-ok">CONFIRMER</button>
       <button class="btn-no" onclick="closeModal()">ANNULER</button>
@@ -413,8 +431,8 @@
 // ══════════════════════════════════════════════════════
 // CONFIG — URL PARTAGÉE, JAMAIS CHANGÉE
 // ══════════════════════════════════════════════════════
-const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzFuCSOAi8vdQttgnYZt7gL55eDi04YxBV-fKLvL6iF9omVz_fh2rTD-ej3zNeIEQc_/exec';
-const MAX        = 5;
+const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzuoGUJJHropGcKRVTVdK8xW7NS7huuEq9qUlAoVPFPOdu2lR0RyQp4GnZ5puyxQg/exec';
+const MAX        = 10;
 const POLL_MS    = 5000;
 const SESSION_KEY = 'pause_session'; // clé localStorage pour maintenir la session
 
@@ -428,6 +446,7 @@ let histList   = [];     // pauses terminées (depuis Sheets)
 let pollTmr    = null;
 let tickTmr    = null;
 let removing   = new Set(); // IDs en cours de suppression (évite les doublons)
+let reposMed   = null;     // 'oui' | 'non' | null — choix repos médical en cours
 
 // ══════════════════════════════════════════════════════
 // STORAGE USERS
@@ -690,10 +709,15 @@ async function pushPause(entry) {
   } catch(e) { sync('err'); return false; }
 }
 
-async function pushRemove(id, finStr) {
+async function pushRemove(id, finStr, reposMedVal) {
   sync('syn');
   try {
-    const p = new URLSearchParams({ action: 'removePause', id: String(id), fin: finStr || '' });
+    const p = new URLSearchParams({
+      action:    'removePause',
+      id:        String(id),
+      fin:       finStr || '',
+      reposMed:  reposMedVal || ''
+    });
     await fetch(SHEETS_URL + '?' + p);
     sync('ok');
     return true;
@@ -758,6 +782,12 @@ async function sendPause() {
   await pushPause(entry);
 }
 
+function selectRepos(val) {
+  reposMed = val;
+  document.getElementById('repos-oui').className = 'repos-btn' + (val === 'oui' ? ' sel-oui' : '');
+  document.getElementById('repos-non').className = 'repos-btn' + (val === 'non' ? ' sel-non' : '');
+}
+
 // ══════════════════════════════════════════════════════
 // RETOUR — confirmation puis suppression
 // ══════════════════════════════════════════════════════
@@ -768,6 +798,12 @@ function retourAgent(id) {
 
   const now     = Date.now();
   const elapsed = Math.floor((now - p.startTime) / 1000);
+
+  // Réinitialiser le choix repos médical
+  reposMed = null;
+  document.getElementById('repos-oui').className = 'repos-btn';
+  document.getElementById('repos-non').className = 'repos-btn';
+  document.getElementById('repos-section').style.display = 'block';
 
   // Préparer la modale
   document.getElementById('modal-ttl').textContent = 'CONFIRMER LE RETOUR';
@@ -809,7 +845,7 @@ function retourAgent(id) {
     clearInterval(pollTmr);
 
     // Envoyer à Sheets
-    const ok = await pushRemove(sid, finStr);
+    const ok = await pushRemove(sid, finStr, reposMed);
     if (!ok) toast('⚠ Erreur sync — vérifiez la connexion', 'err');
 
     // Retirer du set de suppression
@@ -824,6 +860,8 @@ function retourAgent(id) {
 
 function closeModal() {
   document.getElementById('modal').classList.remove('open');
+  document.getElementById('repos-section').style.display = 'none';
+  reposMed = null;
 }
 
 // ══════════════════════════════════════════════════════
@@ -909,6 +947,7 @@ function renderHist() {
           <i class="fa-solid fa-stop fa-xs" style="color:var(--accent)"></i> Retour : <strong>${fmtDT(p.endTime)}</strong>
         </div>
         <div class="ag-row" style="margin-top:6px"><span class="ag-lbl"><i class="fa-solid fa-users fa-xs"></i> En file au départ</span><span class="ag-val" style="color:var(--blue);font-weight:700">${enFile}</span></div>
+        ${p.reposMed ? `<div class="ag-row"><span class="ag-lbl"><i class="fa-solid fa-kit-medical fa-xs"></i> Repos médical</span><span class="ag-val" style="color:${p.reposMed === 'oui' ? 'var(--green)' : 'var(--warn)'};font-weight:700">${p.reposMed.toUpperCase()}</span></div>` : ''}
       </div>
       <div class="hist-right">
         <div class="hist-dur-lbl">Durée totale</div>
