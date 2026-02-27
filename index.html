@@ -318,7 +318,7 @@
     <!-- SEND -->
     <div class="pane active" id="pane-send">
       <div class="pg-title"><i class="fa-solid fa-arrow-up-from-bracket" style="color:var(--accent);font-size:28px;margin-right:12px;vertical-align:middle"></i>ENVOYER EN PAUSE</div>
-      <div class="pg-sub">Matricule → nom automatique — max 5 simultanés</div>
+      <div class="pg-sub">Matricule → nom automatique — max 10 simultanés</div>
       <div class="cap-row" id="cap-row"></div>
       <div class="send-card">
         <div class="grid2">
@@ -414,7 +414,7 @@
 // CONFIG — URL PARTAGÉE, JAMAIS CHANGÉE
 // ══════════════════════════════════════════════════════
 const SHEETS_URL = 'https://script.google.com/macros/s/AKfycbzFuCSOAi8vdQttgnYZt7gL55eDi04YxBV-fKLvL6iF9omVz_fh2rTD-ej3zNeIEQc_/exec';
-const MAX        = 5;
+const MAX        = 10;
 const POLL_MS    = 5000;
 const SESSION_KEY = 'pause_session'; // clé localStorage pour maintenir la session
 
@@ -716,7 +716,7 @@ function onMat(val) {
   }
   if (pauseList.length >= MAX) {
     prev.classList.remove('show'); btn.disabled = true;
-    warn.textContent = '⛔ Maximum 5 agents atteint.'; return;
+    warn.textContent = '⛔ Maximum 10 agents atteint.'; return;
   }
   const ag = agentsDB[mat];
   if (ag) {
