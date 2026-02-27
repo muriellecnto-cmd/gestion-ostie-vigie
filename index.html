@@ -180,6 +180,38 @@
            font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; }
   .empty .ico { font-size: 54px; margin-bottom: 16px; color: var(--dimmer); }
 
+  /* Historique — Filtres */
+  .hist-filters { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-end;
+                  background: var(--surf); border: 1px solid var(--border);
+                  border-left: 4px solid var(--blue);
+                  padding: 20px 22px; margin-bottom: 14px; }
+  .hf-group { display: flex; flex-direction: column; gap: 6px; }
+  .hf-lbl { font-size: 10px; font-weight: 800; letter-spacing: 2px;
+             color: var(--dim); text-transform: uppercase; }
+  .hf-input { background: var(--bg); border: 1px solid var(--border); color: var(--text);
+              font-family: var(--font); font-size: 13px; font-weight: 600;
+              padding: 9px 12px; outline: none; transition: border-color .2s;
+              min-width: 150px; }
+  .hf-input:focus { border-color: var(--blue); }
+  .hf-select { cursor: pointer; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23888'/%3E%3C/svg%3E");
+               background-repeat: no-repeat; background-position: right 10px center;
+               padding-right: 28px; }
+  .hf-select option { background: #1a1a2e; }
+  .hf-pills { display: flex; gap: 8px; flex-wrap: wrap; }
+  .hf-pill { background: none; border: 1px solid var(--border); color: var(--dim);
+             font-family: var(--font); font-size: 12px; font-weight: 700;
+             padding: 9px 14px; cursor: pointer; text-transform: uppercase;
+             letter-spacing: 1px; transition: all .2s; white-space: nowrap; }
+  .hf-pill:hover { border-color: var(--blue); color: var(--blue); }
+  .hf-pill-reset { border-color: var(--accent); color: var(--accent); }
+  .hf-pill-reset:hover { background: rgba(220,53,69,.1); border-color: var(--accent); color: var(--accent); }
+  .hf-pill-dl { border-color: var(--green); color: var(--green); }
+  .hf-pill-dl:hover { background: rgba(0,230,118,.08); }
+  .hist-summary { font-size: 12px; font-weight: 700; color: var(--dim);
+                  letter-spacing: 1px; text-transform: uppercase;
+                  margin-bottom: 10px; padding-left: 4px; }
+  .hist-summary span { color: var(--blue); }
+
   /* History cards */
   .hist-card { background: var(--surf); border: 1px solid var(--border);
                border-left: 4px solid var(--blue); padding: 18px 22px;
@@ -368,6 +400,48 @@
     <div class="pane" id="pane-hist">
       <div class="pg-title"><i class="fa-solid fa-clock-rotate-left" style="color:var(--blue);font-size:28px;margin-right:12px;vertical-align:middle"></i>HISTORIQUE GLOBAL</div>
       <div class="pg-sub">Toutes les pauses terminées — visible par tous</div>
+
+      <!-- BARRE DE FILTRES -->
+      <div class="hist-filters">
+        <div class="hf-group">
+          <label class="hf-lbl"><i class="fa-solid fa-magnifying-glass fa-xs"></i> &nbsp;Agent</label>
+          <input type="text" id="hf-agent" class="hf-input" placeholder="Matricule ou nom..." oninput="applyHistFilters()">
+        </div>
+        <div class="hf-group">
+          <label class="hf-lbl"><i class="fa-solid fa-calendar-day fa-xs"></i> &nbsp;Du</label>
+          <input type="date" id="hf-from" class="hf-input" onchange="applyHistFilters()">
+        </div>
+        <div class="hf-group">
+          <label class="hf-lbl"><i class="fa-solid fa-calendar-day fa-xs"></i> &nbsp;Au</label>
+          <input type="date" id="hf-to" class="hf-input" onchange="applyHistFilters()">
+        </div>
+        <div class="hf-group">
+          <label class="hf-lbl"><i class="fa-solid fa-kit-medical fa-xs"></i> &nbsp;Repos médical</label>
+          <select id="hf-repos" class="hf-input hf-select" onchange="applyHistFilters()">
+            <option value="">Tous</option>
+            <option value="oui">Oui</option>
+            <option value="non">Non</option>
+            <option value="nr">Non renseigné</option>
+          </select>
+        </div>
+        <div class="hf-group hf-period-btns">
+          <label class="hf-lbl"><i class="fa-solid fa-bolt fa-xs"></i> &nbsp;Période rapide</label>
+          <div class="hf-pills">
+            <button class="hf-pill" onclick="setPeriod('today')">Aujourd'hui</button>
+            <button class="hf-pill" onclick="setPeriod('week')">7 jours</button>
+            <button class="hf-pill" onclick="setPeriod('month')">30 jours</button>
+            <button class="hf-pill hf-pill-reset" onclick="resetHistFilters()">✕ Tout effacer</button>
+          </div>
+        </div>
+        <div class="hf-group hf-dl-btns">
+          <label class="hf-lbl"><i class="fa-solid fa-download fa-xs"></i> &nbsp;Exporter</label>
+          <div class="hf-pills">
+            <button class="hf-pill hf-pill-dl" onclick="exportCSV()"><i class="fa-solid fa-file-csv fa-xs"></i> CSV</button>
+            <button class="hf-pill hf-pill-dl" onclick="exportExcel()"><i class="fa-solid fa-file-excel fa-xs"></i> Excel</button>
+          </div>
+        </div>
+      </div>
+      <div class="hist-summary" id="hist-summary"></div>
       <div id="list-hist">
         <div class="empty"><div class="ico"><i class="fa-solid fa-clock-rotate-left"></i></div>Aucune pause enregistrée</div>
       </div>
@@ -679,11 +753,12 @@ async function fetchHistory() {
         endTime:   et,
         startStr:  row.startTime || '',
         endStr:    row.endTime   || '',
-        duration:  (st && et) ? Math.floor((et - st) / 1000) : null
+        duration:  (st && et) ? Math.floor((et - st) / 1000) : null,
+        reposMed:  row.reposMed || ''
       };
     });
 
-    renderHist();
+    applyHistFilters();
     document.getElementById('s-hist').textContent = histList.length;
   } catch(e) {}
 }
@@ -918,24 +993,92 @@ function renderEncours() {
 // ══════════════════════════════════════════════════════
 // RENDER — HISTORIQUE
 // ══════════════════════════════════════════════════════
+
+// Filtre actif (partagé entre renderHist et export)
+let histFiltered = [];
+
+function applyHistFilters() {
+  const agent = (document.getElementById('hf-agent')?.value || '').trim().toLowerCase();
+  const from  = document.getElementById('hf-from')?.value;   // "YYYY-MM-DD"
+  const to    = document.getElementById('hf-to')?.value;
+  const repos = document.getElementById('hf-repos')?.value || '';
+
+  const fromTs = from ? new Date(from + 'T00:00:00').getTime() : null;
+  const toTs   = to   ? new Date(to   + 'T23:59:59').getTime() : null;
+
+  histFiltered = histList.filter(p => {
+    if (agent && !p.matricule.toLowerCase().includes(agent) && !p.nom.toLowerCase().includes(agent)) return false;
+    if (fromTs && p.startTime < fromTs) return false;
+    if (toTs   && p.startTime > toTs)   return false;
+    if (repos === 'oui' && p.reposMed !== 'oui') return false;
+    if (repos === 'non' && p.reposMed !== 'non') return false;
+    if (repos === 'nr'  && p.reposMed) return false;
+    return true;
+  });
+  renderHist();
+}
+
+function setPeriod(p) {
+  const now  = new Date();
+  const toStr = now.toISOString().slice(0, 10);
+  let fromStr;
+  if (p === 'today') {
+    fromStr = toStr;
+  } else if (p === 'week') {
+    const d = new Date(now); d.setDate(d.getDate() - 6);
+    fromStr = d.toISOString().slice(0, 10);
+  } else if (p === 'month') {
+    const d = new Date(now); d.setDate(d.getDate() - 29);
+    fromStr = d.toISOString().slice(0, 10);
+  }
+  document.getElementById('hf-from').value = fromStr;
+  document.getElementById('hf-to').value   = toStr;
+  applyHistFilters();
+}
+
+function resetHistFilters() {
+  document.getElementById('hf-agent').value = '';
+  document.getElementById('hf-from').value  = '';
+  document.getElementById('hf-to').value    = '';
+  document.getElementById('hf-repos').value = '';
+  applyHistFilters();
+}
+
 function renderHist() {
   const c = document.getElementById('list-hist');
-  if (!histList.length) {
-    c.innerHTML = '<div class="empty"><div class="ico"><i class="fa-solid fa-clock-rotate-left"></i></div>Aucune pause enregistrée</div>';
+  const list = histFiltered.length || document.getElementById('hf-agent').value || document.getElementById('hf-from').value || document.getElementById('hf-to').value || document.getElementById('hf-repos').value
+    ? histFiltered
+    : histList;
+
+  // Résumé
+  const sumEl = document.getElementById('hist-summary');
+  if (sumEl) {
+    if (!histList.length) {
+      sumEl.innerHTML = '';
+    } else {
+      const hasFilter = document.getElementById('hf-agent').value || document.getElementById('hf-from').value || document.getElementById('hf-to').value || document.getElementById('hf-repos').value;
+      const totalDur = list.reduce((acc, p) => acc + (p.duration || 0), 0);
+      sumEl.innerHTML = hasFilter
+        ? `<span>${list.length}</span> résultat${list.length > 1 ? 's' : ''} sur ${histList.length} — Durée totale filtrée : <span>${fmt(totalDur)}</span>`
+        : `<span>${histList.length}</span> pause${histList.length > 1 ? 's' : ''} au total — Durée totale : <span>${fmt(totalDur)}</span>`;
+    }
+  }
+
+  if (!list.length) {
+    c.innerHTML = '<div class="empty"><div class="ico"><i class="fa-solid fa-clock-rotate-left"></i></div>' + (histList.length ? 'Aucun résultat pour ces filtres' : 'Aucune pause enregistrée') + '</div>';
     return;
   }
-  // Toutes les pauses (historique + en cours) pour calcul de file
+
   const allPauses = [...histList, ...pauseList];
-  c.innerHTML = histList.map(p => {
+  c.innerHTML = list.map(p => {
     const dur = p.duration != null ? fmt(p.duration) : '—';
-    // Nombre de personnes EN file au moment du départ de cet agent
-    // = autres pauses qui étaient actives à ce moment (startTime <= p.startTime ET pas encore revenues)
-    // On exclut l'agent lui-même
     const enFile = allPauses.filter(other =>
       String(other.id) !== String(p.id) &&
       other.startTime <= p.startTime &&
       (other.endTime == null || other.endTime >= p.startTime)
     ).length;
+    const reposColor = p.reposMed === 'oui' ? 'var(--green)' : 'var(--warn)';
+    const reposLabel = p.reposMed === 'oui' ? '✓ OUI' : p.reposMed === 'non' ? '✗ NON' : '—';
     return `<div class="hist-card">
       <div class="hist-fields">
         <div class="ag-row"><span class="ag-lbl">Matricule</span><span class="ag-val">${p.matricule}</span></div>
@@ -946,8 +1089,10 @@ function renderHist() {
           <i class="fa-solid fa-play fa-xs" style="color:var(--green)"></i> Départ : <strong>${fmtDT(p.startTime)}</strong><br>
           <i class="fa-solid fa-stop fa-xs" style="color:var(--accent)"></i> Retour : <strong>${fmtDT(p.endTime)}</strong>
         </div>
-        <div class="ag-row" style="margin-top:6px"><span class="ag-lbl"><i class="fa-solid fa-users fa-xs"></i> En file au départ</span><span class="ag-val" style="color:var(--blue);font-weight:700">${enFile}</span></div>
-        ${p.reposMed ? `<div class="ag-row"><span class="ag-lbl"><i class="fa-solid fa-kit-medical fa-xs"></i> Repos médical</span><span class="ag-val" style="color:${p.reposMed === 'oui' ? 'var(--green)' : 'var(--warn)'};font-weight:700">${p.reposMed.toUpperCase()}</span></div>` : ''}
+        <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;">
+          <div class="ag-row"><span class="ag-lbl"><i class="fa-solid fa-users fa-xs"></i> En file au départ</span><span class="ag-val" style="color:var(--blue);font-weight:700">${enFile}</span></div>
+          <div class="ag-row"><span class="ag-lbl"><i class="fa-solid fa-kit-medical fa-xs"></i> Repos médical</span><span class="ag-val" style="color:${p.reposMed ? reposColor : 'var(--dimmer)'};font-weight:700">${reposLabel}</span></div>
+        </div>
       </div>
       <div class="hist-right">
         <div class="hist-dur-lbl">Durée totale</div>
@@ -955,6 +1100,82 @@ function renderHist() {
       </div>
     </div>`;
   }).join('');
+}
+
+// ══════════════════════════════════════════════════════
+// EXPORT — CSV & Excel
+// ══════════════════════════════════════════════════════
+function getExportData() {
+  const hasFilter = document.getElementById('hf-agent')?.value || document.getElementById('hf-from')?.value || document.getElementById('hf-to')?.value || document.getElementById('hf-repos')?.value;
+  return (hasFilter ? histFiltered : histList);
+}
+
+function fmtDateExport(ts) {
+  if (!ts) return '';
+  const d = new Date(typeof ts === 'number' ? ts : Number(ts));
+  if (isNaN(d.getTime())) return String(ts);
+  const z = n => String(n).padStart(2,'0');
+  return z(d.getDate())+'/'+z(d.getMonth()+1)+'/'+d.getFullYear()+' '+z(d.getHours())+':'+z(d.getMinutes())+':'+z(d.getSeconds());
+}
+
+function exportCSV() {
+  const data = getExportData();
+  if (!data.length) { toast('Aucune donnée à exporter', 'warn'); return; }
+  const headers = ['Matricule','Nom','Fonction','Note','Départ','Retour','Durée (mm:ss)','En file','Repos médical'];
+  const allPauses = [...histList, ...pauseList];
+  const rows = data.map(p => {
+    const enFile = allPauses.filter(o => String(o.id) !== String(p.id) && o.startTime <= p.startTime && (o.endTime == null || o.endTime >= p.startTime)).length;
+    return [
+      p.matricule, p.nom, p.equipe, p.note || '',
+      fmtDateExport(p.startTime), fmtDateExport(p.endTime),
+      p.duration != null ? fmt(p.duration) : '',
+      enFile,
+      p.reposMed ? p.reposMed.toUpperCase() : ''
+    ].map(v => '"' + String(v).replace(/"/g,'""') + '"').join(',');
+  });
+  const csv = '\uFEFF' + headers.join(',') + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pauses_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.click();
+  toast('✓ Export CSV téléchargé (' + data.length + ' lignes)', 'ok');
+}
+
+function exportExcel() {
+  const data = getExportData();
+  if (!data.length) { toast('Aucune donnée à exporter', 'warn'); return; }
+  const allPauses = [...histList, ...pauseList];
+  const headers = ['Matricule','Nom','Fonction','Note','Départ','Retour','Durée (mm:ss)','En file au départ','Repos médical'];
+  const rows = data.map(p => {
+    const enFile = allPauses.filter(o => String(o.id) !== String(p.id) && o.startTime <= p.startTime && (o.endTime == null || o.endTime >= p.startTime)).length;
+    return [p.matricule, p.nom, p.equipe, p.note||'', fmtDateExport(p.startTime), fmtDateExport(p.endTime), p.duration != null ? fmt(p.duration) : '', enFile, p.reposMed ? p.reposMed.toUpperCase() : ''];
+  });
+
+  // Build XML SpreadsheetML (compatible Excel / LibreOffice sans lib externe)
+  const xmlRows = [headers, ...rows].map(row =>
+    '<Row>' + row.map(v => `<Cell><Data ss:Type="String">${String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</Data></Cell>`).join('') + '</Row>'
+  ).join('');
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<?mso-application progid="Excel.Sheet"?>
+<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
+  xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
+  <Styles>
+    <Style ss:ID="h"><Font ss:Bold="1"/><Interior ss:Color="#1a1a2e" ss:Pattern="Solid"/></Style>
+  </Styles>
+  <Worksheet ss:Name="Pauses">
+    <Table>
+      <Row>${headers.map(h=>`<Cell ss:StyleID="h"><Data ss:Type="String">${h}</Data></Cell>`).join('')}</Row>
+      ${rows.map(row => '<Row>' + row.map(v=>`<Cell><Data ss:Type="String">${String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}</Data></Cell>`).join('') + '</Row>').join('')}
+    </Table>
+  </Worksheet>
+</Workbook>`;
+  const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'pauses_' + new Date().toISOString().slice(0,10) + '.xls';
+  a.click();
+  toast('✓ Export Excel téléchargé (' + data.length + ' lignes)', 'ok');
 }
 
 // ══════════════════════════════════════════════════════
