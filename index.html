@@ -300,7 +300,7 @@
     </div>
     <div class="hdr-right">
       <div class="sync-dot" id="sync-dot"><i class="fa-solid fa-circle fa-xs"></i> —</div>
-      <div class="badge"><i class="fa-solid fa-mug-hot fa-sm"></i> &nbsp;EN PAUSE : <strong id="hdr-n">0</strong><span style="opacity:.5"> / 5</span></div>
+      <div class="badge"><i class="fa-solid fa-mug-hot fa-sm"></i> &nbsp;EN PAUSE : <strong id="hdr-n">0</strong><span style="opacity:.5"> / 10</span></div>
       <button class="btn-sm hidden" id="btn-admin-tab" onclick="goTab('admin')"><i class="fa-solid fa-gear"></i> ADMIN</button>
       <button class="btn-sm" onclick="doLogout()"><i class="fa-solid fa-power-off"></i> DÉCO</button>
     </div>
@@ -888,6 +888,12 @@ function renderHist() {
   }
   c.innerHTML = histList.map(p => {
     const dur = p.duration != null ? fmt(p.duration) : '—';
+    // Calcul du nombre de personnes simultanément en pause au moment du départ
+    const queueAtStart = histList.filter(other =>
+      other !== p &&
+      other.startTime <= p.startTime &&
+      (other.endTime == null || other.endTime >= p.startTime)
+    ).length + 1; // +1 pour inclure la personne elle-même
     return `<div class="hist-card">
       <div class="hist-fields">
         <div class="ag-row"><span class="ag-lbl">Matricule</span><span class="ag-val">${p.matricule}</span></div>
@@ -898,6 +904,7 @@ function renderHist() {
           <i class="fa-solid fa-play fa-xs" style="color:var(--green)"></i> Départ : <strong>${fmtDT(p.startTime)}</strong><br>
           <i class="fa-solid fa-stop fa-xs" style="color:var(--accent)"></i> Retour : <strong>${fmtDT(p.endTime)}</strong>
         </div>
+        <div class="ag-row" style="margin-top:6px"><span class="ag-lbl"><i class="fa-solid fa-users fa-xs"></i> En file</span><span class="ag-val" style="color:var(--blue);font-weight:700">${queueAtStart} / ${MAX}</span></div>
       </div>
       <div class="hist-right">
         <div class="hist-dur-lbl">Durée totale</div>
