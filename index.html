@@ -318,7 +318,7 @@
     <!-- SEND -->
     <div class="pane active" id="pane-send">
       <div class="pg-title"><i class="fa-solid fa-arrow-up-from-bracket" style="color:var(--accent);font-size:28px;margin-right:12px;vertical-align:middle"></i>ENVOYER EN PAUSE</div>
-      <div class="pg-sub">Matricule → nom automatique — max 5 simultanés</div>
+      <div class="pg-sub">Matricule → nom automatique — max 10 simultanés</div>
       <div class="cap-row" id="cap-row"></div>
       <div class="send-card">
         <div class="grid2">
@@ -840,7 +840,7 @@ function renderCap() {
   }
   const lbl = document.createElement('div');
   lbl.className = 'cap-lbl';
-  lbl.textContent = pauseList.length + ' / 10 en pause';
+  lbl.textContent = pauseList.length + ' en file';
   bar.appendChild(lbl);
   document.getElementById('hdr-n').textContent = pauseList.length;
 }
@@ -894,7 +894,7 @@ function renderHist() {
     // = autres pauses qui étaient actives à ce moment (startTime <= p.startTime ET pas encore revenues)
     // On exclut l'agent lui-même
     const enFile = allPauses.filter(other =>
-      other !== p &&
+      String(other.id) !== String(p.id) &&
       other.startTime <= p.startTime &&
       (other.endTime == null || other.endTime >= p.startTime)
     ).length;
